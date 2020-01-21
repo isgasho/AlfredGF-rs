@@ -1,0 +1,3 @@
+AlfredGF-rs
+=
+Functional WebGPU.

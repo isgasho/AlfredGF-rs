@@ -231,6 +231,7 @@ impl AFBindGroup {
 
     // TODO rewrite this so it takes in an AFBinding
     // TODO also update the specs later
+    // TODO create a buffer in here and save it in a hashmap; let them be initialized?
     pub fn new(context: &AFContext, binding_layouts: &[BindGroupLayoutBinding]) -> Self {
         let layout: BindGroupLayout = context.device.create_bind_group_layout(
             &BindGroupLayoutDescriptor {

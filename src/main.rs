@@ -59,6 +59,7 @@ fn main() {
                 range: 0..3,
                 dynamic: false,
                 readonly: false,
+                usage: BufferUsage::VERTEX,
             },
             visibility: ShaderStage::VERTEX,
         }]

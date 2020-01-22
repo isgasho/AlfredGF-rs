@@ -12,6 +12,7 @@ use winit::{
 };
 
 use std::ops::Range;
+use std::collections::HashMap;
 
 pub struct AFImage<'a> {
     pub data: &'a [u8],
@@ -173,6 +174,7 @@ pub enum AFBindingType {
         range: Range<u64>,
         dynamic: bool,
         readonly: bool,
+        usage: BufferUsage,
     },
     // TODO add more bindings here
 }
@@ -182,6 +184,9 @@ pub struct AFBinding {
     pub binding: AFBindingType,
     pub visibility: ShaderStage,
 }
+
+static mut INDEX_BUFFER: Option<Buffer> = None;
+static mut VERTEX_BUFFERS: HashMap<u32, Buffer> = HashMap::new();
 
 impl AFBindGroup {
     // TODO rewrite this so it takes in an AFBinding

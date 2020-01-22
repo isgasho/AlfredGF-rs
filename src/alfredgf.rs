@@ -167,6 +167,8 @@ impl<'a> AFShaderModule<'a> {
 pub struct AFBindGroup {
     layout: BindGroupLayout,
     bind_group: BindGroup,
+    index_buffer: Option<Buffer>,
+    vertex_buffers: HashMap<u32, Buffer>,
 }
 
 pub enum AFBindingType {
@@ -184,9 +186,6 @@ pub struct AFBinding {
     pub binding: AFBindingType,
     pub visibility: ShaderStage,
 }
-
-static mut INDEX_BUFFER: Option<Buffer> = None;
-static mut VERTEX_BUFFERS: HashMap<u32, Buffer> = HashMap::new();
 
 impl AFBindGroup {
     // TODO rewrite this so it takes in an AFBinding
@@ -228,7 +227,12 @@ impl AFBindGroup {
             bindings,
         });
 
-        return AFBindGroup { layout, bind_group };
+        return AFBindGroup {
+            layout,
+            bind_group,
+            index_buffer: None, // TODO create these buffers when making the bindings and save them
+            vertex_buffers: HashMap::new(),
+        };
     }
 }
 

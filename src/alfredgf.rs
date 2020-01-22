@@ -9,6 +9,9 @@ use wgpu::{
     Limits,
     DeviceDescriptor,
     Extensions,
+    ShaderModule,
+    ShaderStage,
+    read_spirv,
 };
 
 use winit::{
@@ -129,7 +132,7 @@ impl AFContext {
                         backends: BackendBit::PRIMARY, // defaults to Vulkan / Metal
                     }).unwrap();
 
-                    let (device, mut queue): (Device, Queue) = adapter.request_device(&DeviceDescriptor {
+                    let (device, queue): (Device, Queue) = adapter.request_device(&DeviceDescriptor {
                         extensions: Extensions {
                             anisotropic_filtering: config.anisotropic_filtering,
                         },
@@ -149,6 +152,39 @@ impl AFContext {
             }
 
             CURRENT_CONTEXT.as_ref().unwrap()
+        };
+    }
+
+}
+
+pub struct AFShaderModule<'a> {
+
+    module: ShaderModule,
+    entry: &'a str,
+
+}
+
+impl<'a> AFShaderModule<'a> {
+
+    pub fn new_with_bytes(context: &AFContext, data: &[u8], entry: &'a str) -> Self {
+        let module: ShaderModule = context
+            .device
+            .create_shader_module(&read_spirv(std::io::Cursor::new(data)).unwrap());
+
+        return AFShaderModule {
+            module,
+            entry: entry.clone(),
+        };
+    }
+
+    pub fn new_with_path(context: &AFContext, path: &str, entry: &'a str) -> Self {
+        let mut file = std::fs::File::open(path).unwrap();
+        let mut words: Vec<u32> = read_spirv(&mut file).unwrap();
+        let module: ShaderModule = context.device.create_shader_module(words.as_mut());
+
+        return AFShaderModule {
+            module,
+            entry,
         };
     }
 

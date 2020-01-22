@@ -5,6 +5,10 @@ use wgpu::{
     BindGroupLayoutBinding,
     Binding,
     BindingResource,
+    ShaderStage,
+    BindingType,
+    Buffer,
+    BufferUsage,
 };
 
 fn main() {
@@ -42,10 +46,32 @@ fn main() {
     let f_s: alfredgf::AFShaderModule =
         alfredgf::AFShaderModule::new_with_bytes(context, fragment_data, entry_point);
 
+    // making a buffer
+//    let test: Buffer = alfredgf::create_buffer(context, BufferUsage::STORAGE,
+//                                               &[
+//                                                   0, 1,
+//                                                   1, 0,
+//                                                   0, 0
+//                                               ]);
+
+    // TODO make the buffer creation be on AlfredGF's end
     // bind groups
-    let render_bind_group: alfredgf::AFBindGroup = alfredgf::AFBindGroup::new(
-        context,
-        &[],
-        &[],
-    );
+//    let render_bind_group: alfredgf::AFBindGroup = alfredgf::AFBindGroup::new(
+//        context,
+//        &[BindGroupLayoutBinding {
+//            binding: 0,
+//            visibility: ShaderStage::VERTEX,
+//            ty: BindingType::StorageBuffer {
+//                dynamic: false,
+//                readonly: false,
+//            },
+//        }],
+//        &[Binding {
+//            binding: 0,
+//            resource: BindingResource::Buffer {
+//                buffer: &test,
+//                range: 0..4,
+//            },
+//        }],
+//    );
 }

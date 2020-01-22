@@ -19,6 +19,8 @@ use wgpu::{
     BindGroup,
     BindGroupDescriptor,
     Binding,
+    BufferUsage,
+    Buffer,
 };
 
 use winit::{
@@ -32,6 +34,12 @@ use winit::{
     },
     event_loop::{
         EventLoop,
+    },
+};
+
+use std::{
+    ops::{
+        Range,
     },
 };
 
@@ -204,14 +212,33 @@ pub struct AFBindGroup {
 
 }
 
+pub enum AFBindingType {
+
+    Buffer(Range<u64>),
+    // TODO add more bindings here
+
+}
+
+pub struct AFBinding {
+
+    id: u32,
+    binding: AFBindingType,
+    visibility: ShaderStage,
+
+}
+
 impl AFBindGroup {
 
-    pub fn new(context: &AFContext, binding_layouts: &[BindGroupLayoutBinding],
-               bindings: &[Binding]) -> Self {
+    // TODO rewrite this so it takes in an AFBinding
+    // TODO also update the specs later
+    pub fn new(context: &AFContext, binding_layouts: &[BindGroupLayoutBinding]) -> Self {
         let layout: BindGroupLayout = context.device.create_bind_group_layout(
             &BindGroupLayoutDescriptor {
             bindings: binding_layouts,
         });
+
+        let bindings: &[Binding] = [];
+
         let bind_group = context.device.create_bind_group(&BindGroupDescriptor {
             layout: &layout,
             bindings,
@@ -223,4 +250,13 @@ impl AFBindGroup {
         };
     }
 
+}
+
+fn create_buffer(context: &AFContext, usage: BufferUsage, data: &[u8]) -> Buffer {
+    let buffer: Buffer = context
+        .device
+        .create_buffer_mapped(data.len(), usage)
+        .fill_from_slice(&data);
+
+    return buffer;
 }

@@ -1,47 +1,17 @@
 use wgpu::{
-    PowerPreference,
-    Surface,
-    Device,
-    Queue,
-    BackendBit,
-    RequestAdapterOptions,
-    Adapter,
-    Limits,
-    DeviceDescriptor,
-    Extensions,
-    ShaderModule,
-    ShaderStage,
-    read_spirv,
-    BindGroupLayoutBinding,
-    PipelineLayoutDescriptor,
-    BindGroupLayout,
-    BindGroupLayoutDescriptor,
-    BindGroup,
-    BindGroupDescriptor,
-    Binding,
-    BufferUsage,
-    Buffer,
+    read_spirv, Adapter, BackendBit, BindGroup, BindGroupDescriptor, BindGroupLayout,
+    BindGroupLayoutBinding, BindGroupLayoutDescriptor, Binding, Buffer, BufferUsage, Device,
+    DeviceDescriptor, Extensions, Limits, PipelineLayoutDescriptor, PowerPreference, Queue,
+    RequestAdapterOptions, ShaderModule, ShaderStage, Surface, BindingType,
 };
 
 use winit::{
-    window::{
-        Window,
-        Icon,
-        WindowBuilder,
-    },
-    dpi::{
-        PhysicalSize,
-    },
-    event_loop::{
-        EventLoop,
-    },
+    dpi::PhysicalSize,
+    event_loop::EventLoop,
+    window::{Icon, Window, WindowBuilder},
 };
 
-use std::{
-    ops::{
-        Range,
-    },
-};
+use std::ops::Range;
 
 pub struct AFImage<'a> {
     pub data: &'a [u8],
@@ -50,7 +20,6 @@ pub struct AFImage<'a> {
 }
 
 pub struct AFWindowConfig<'a> {
-
     pub icon: &'a AFImage<'a>,
     pub min_size: [u16; 2],
     pub max_size: [u16; 2],
@@ -60,37 +29,41 @@ pub struct AFWindowConfig<'a> {
     pub visible: bool,
     pub always_on_top: bool,
     pub maximized: bool,
-
 }
 
 pub struct AFWindow {
-
     event_loop: EventLoop<()>,
     window: Window,
-
 }
 
 static mut CURRENT_WINDOW: Option<AFWindow> = None;
 
 impl AFWindow {
-
     pub fn new<'a>(config: &AFWindowConfig) -> &'a Self {
         return unsafe {
             match &CURRENT_WINDOW {
                 None => {
                     let builder: WindowBuilder = WindowBuilder::new()
-                        .with_window_icon(Icon::from_rgba(
-                            config.icon.data.to_vec(),
-                            config.icon.width,
-                            config.icon.height,
-                        ).ok())
-                        .with_min_inner_size(
-                            PhysicalSize::new(config.min_size[0], config.min_size[1]))
-                        .with_max_inner_size(
-                            PhysicalSize::new(config.max_size[0], config.max_size[1]))
-                        .with_inner_size(
-                            PhysicalSize::new(config.start_size[0], config.start_size[1])
+                        .with_window_icon(
+                            Icon::from_rgba(
+                                config.icon.data.to_vec(),
+                                config.icon.width,
+                                config.icon.height,
+                            )
+                            .ok(),
                         )
+                        .with_min_inner_size(PhysicalSize::new(
+                            config.min_size[0],
+                            config.min_size[1],
+                        ))
+                        .with_max_inner_size(PhysicalSize::new(
+                            config.max_size[0],
+                            config.max_size[1],
+                        ))
+                        .with_inner_size(PhysicalSize::new(
+                            config.start_size[0],
+                            config.start_size[1],
+                        ))
                         .with_title(config.title)
                         .with_resizable(config.resizeable)
                         .with_always_on_top(config.always_on_top)
@@ -98,10 +71,7 @@ impl AFWindow {
 
                     let event_loop: EventLoop<()> = EventLoop::new();
                     let window = builder.build(&event_loop).unwrap();
-                    let t_w = Option::Some(AFWindow {
-                        window,
-                        event_loop,
-                    });
+                    let t_w = Option::Some(AFWindow { window, event_loop });
 
                     CURRENT_WINDOW = t_w;
                 }
@@ -113,29 +83,23 @@ impl AFWindow {
             CURRENT_WINDOW.as_ref().unwrap()
         };
     }
-
 }
 
 pub struct AFContextConfig {
-
     pub anisotropic_filtering: bool,
     pub power_preference: PowerPreference,
-
 }
 
 pub struct AFContext {
-
     size: PhysicalSize<u32>,
     surface: Surface,
     device: Device,
     queue: Queue,
-
 }
 
 static mut CURRENT_CONTEXT: Option<AFContext> = None;
 
 impl AFContext {
-
     pub fn new<'a>(window: &AFWindow, config: &AFContextConfig) -> &'a Self {
         return unsafe {
             match &CURRENT_CONTEXT {
@@ -145,14 +109,16 @@ impl AFContext {
                     let adapter: Adapter = Adapter::request(&RequestAdapterOptions {
                         power_preference: config.power_preference,
                         backends: BackendBit::PRIMARY, // defaults to Vulkan / Metal
-                    }).unwrap();
+                    })
+                    .unwrap();
 
-                    let (device, queue): (Device, Queue) = adapter.request_device(&DeviceDescriptor {
-                        extensions: Extensions {
-                            anisotropic_filtering: config.anisotropic_filtering,
-                        },
-                        limits: Limits::default(),
-                    });
+                    let (device, queue): (Device, Queue) =
+                        adapter.request_device(&DeviceDescriptor {
+                            extensions: Extensions {
+                                anisotropic_filtering: config.anisotropic_filtering,
+                            },
+                            limits: Limits::default(),
+                        });
 
                     CURRENT_CONTEXT = Option::Some(AFContext {
                         size,
@@ -169,18 +135,14 @@ impl AFContext {
             CURRENT_CONTEXT.as_ref().unwrap()
         };
     }
-
 }
 
 pub struct AFShaderModule<'a> {
-
     module: ShaderModule,
     entry: &'a str,
-
 }
 
 impl<'a> AFShaderModule<'a> {
-
     pub fn new_with_bytes(context: &AFContext, data: &[u8], entry: &'a str) -> Self {
         let module: ShaderModule = context
             .device
@@ -197,60 +159,72 @@ impl<'a> AFShaderModule<'a> {
         let mut words: Vec<u32> = read_spirv(&mut file).unwrap();
         let module: ShaderModule = context.device.create_shader_module(words.as_mut());
 
-        return AFShaderModule {
-            module,
-            entry,
-        };
+        return AFShaderModule { module, entry };
     }
-
 }
 
 pub struct AFBindGroup {
-
     layout: BindGroupLayout,
     bind_group: BindGroup,
-
 }
 
 pub enum AFBindingType {
-
-    Buffer(Range<u64>),
+    Buffer {
+        range: Range<u64>,
+        dynamic: bool,
+        readonly: bool,
+    },
     // TODO add more bindings here
-
 }
 
 pub struct AFBinding {
-
-    id: u32,
-    binding: AFBindingType,
-    visibility: ShaderStage,
-
+    pub id: u32,
+    pub binding: AFBindingType,
+    pub visibility: ShaderStage,
 }
 
 impl AFBindGroup {
-
     // TODO rewrite this so it takes in an AFBinding
     // TODO also update the specs later
     // TODO create a buffer in here and save it in a hashmap; let them be initialized?
-    pub fn new(context: &AFContext, binding_layouts: &[BindGroupLayoutBinding]) -> Self {
-        let layout: BindGroupLayout = context.device.create_bind_group_layout(
-            &BindGroupLayoutDescriptor {
-            bindings: binding_layouts,
-        });
+    pub fn new(context: &AFContext, af_bindings: &[AFBinding]) -> Self {
+        let binding_layouts: Vec<BindGroupLayoutBinding> = af_bindings.iter()
+            .map(|afbinding: &AFBinding|{
+                BindGroupLayoutBinding {
+                    binding: afbinding.id,
+                    visibility: afbinding.visibility,
+                    ty: match afbinding.binding {
+                        AFBindingType::Buffer {
+                            dynamic,
+                            readonly,
+                            ..
+                        } => {
+                            BindingType::StorageBuffer {
+                                dynamic,
+                                readonly,
+                            }
+                        }
+                    },
+                }
+            }).collect::<Vec<_>>();
+        let binding_layouts = binding_layouts.as_slice();
 
-        let bindings: &[Binding] = [];
+        let layout: BindGroupLayout =
+            context
+                .device
+                .create_bind_group_layout(&BindGroupLayoutDescriptor {
+                    bindings: binding_layouts,
+                });
+        // TODO add some proper bindings here
+        let bindings: &[Binding] = &[];
 
         let bind_group = context.device.create_bind_group(&BindGroupDescriptor {
             layout: &layout,
             bindings,
         });
 
-        return AFBindGroup {
-            layout,
-            bind_group,
-        };
+        return AFBindGroup { layout, bind_group };
     }
-
 }
 
 fn create_buffer(context: &AFContext, usage: BufferUsage, data: &[u8]) -> Buffer {

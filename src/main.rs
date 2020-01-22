@@ -1,20 +1,15 @@
 mod alfredgf;
 
 use wgpu::{
-    PowerPreference,
-    BindGroupLayoutBinding,
-    Binding,
-    BindingResource,
-    ShaderStage,
-    BindingType,
-    Buffer,
-    BufferUsage,
+    BindGroupLayoutBinding, Binding, BindingResource, BindingType, Buffer, BufferUsage,
+    PowerPreference, ShaderStage,
 };
 
 fn main() {
     // window creation
     let window_config: alfredgf::AFWindowConfig = alfredgf::AFWindowConfig {
-        icon: &alfredgf::AFImage { // stub image
+        icon: &alfredgf::AFImage {
+            // stub image
             data: &[],
             width: 0,
             height: 0,
@@ -47,31 +42,43 @@ fn main() {
         alfredgf::AFShaderModule::new_with_bytes(context, fragment_data, entry_point);
 
     // making a buffer
-//    let test: Buffer = alfredgf::create_buffer(context, BufferUsage::STORAGE,
-//                                               &[
-//                                                   0, 1,
-//                                                   1, 0,
-//                                                   0, 0
-//                                               ]);
+    //    let test: Buffer = alfredgf::create_buffer(context, BufferUsage::STORAGE,
+    //                                               &[
+    //                                                   0, 1,
+    //                                                   1, 0,
+    //                                                   0, 0
+    //                                               ]);
 
     // TODO make the buffer creation be on AlfredGF's end
     // bind groups
-//    let render_bind_group: alfredgf::AFBindGroup = alfredgf::AFBindGroup::new(
-//        context,
-//        &[BindGroupLayoutBinding {
-//            binding: 0,
-//            visibility: ShaderStage::VERTEX,
-//            ty: BindingType::StorageBuffer {
-//                dynamic: false,
-//                readonly: false,
-//            },
-//        }],
-//        &[Binding {
-//            binding: 0,
-//            resource: BindingResource::Buffer {
-//                buffer: &test,
-//                range: 0..4,
-//            },
-//        }],
-//    );
+
+    let render_bind_group: alfredgf::AFBindGroup = alfredgf::AFBindGroup::new(
+        context, &[alfredgf::AFBinding {
+            id: 0,
+            binding: alfredgf::AFBindingType::Buffer {
+                range: 0..3,
+                dynamic: false,
+                readonly: false,
+            },
+            visibility: ShaderStage::VERTEX,
+        }]
+    );
+    //    let render_bind_group: alfredgf::AFBindGroup = alfredgf::AFBindGroup::new(
+    //        context,
+    //        &[BindGroupLayoutBinding {
+    //            binding: 0,
+    //            visibility: ShaderStage::VERTEX,
+    //            ty: BindingType::StorageBuffer {
+    //                dynamic: false,
+    //                readonly: false,
+    //            },
+    //        }],
+    //        &[Binding {
+    //            binding: 0,
+    //            resource: BindingResource::Buffer {
+    //                buffer: &test,
+    //                range: 0..4,
+    //            },
+    //        }],
+    //    );
 }

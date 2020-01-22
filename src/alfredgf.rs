@@ -49,32 +49,39 @@ impl AFWindow {
 
     fn new<'a>(config: &AFWindowConfig) -> &'a Self {
         unsafe {
-            let builder: WindowBuilder = WindowBuilder::new()
-                .with_window_icon(Icon::from_rgba(
-                    config.icon.data.to_vec(),
-                    config.icon.width,
-                    config.icon.height,
-                ).ok())
-                .with_min_inner_size(
-                    PhysicalSize::new(config.min_size[0], config.min_size[1]))
-                .with_max_inner_size(
-                    PhysicalSize::new(config.max_size[0], config.max_size[1]))
-                .with_inner_size(
-                    PhysicalSize::new(config.start_size[0], config.start_size[1])
-                )
-                .with_title(config.title)
-                .with_resizable(config.resizeable)
-                .with_always_on_top(config.always_on_top)
-                .with_maximized(config.maximized);
+            match &CURRENT_WINDOW {
+                None => {
+                    let builder: WindowBuilder = WindowBuilder::new()
+                        .with_window_icon(Icon::from_rgba(
+                            config.icon.data.to_vec(),
+                            config.icon.width,
+                            config.icon.height,
+                        ).ok())
+                        .with_min_inner_size(
+                            PhysicalSize::new(config.min_size[0], config.min_size[1]))
+                        .with_max_inner_size(
+                            PhysicalSize::new(config.max_size[0], config.max_size[1]))
+                        .with_inner_size(
+                            PhysicalSize::new(config.start_size[0], config.start_size[1])
+                        )
+                        .with_title(config.title)
+                        .with_resizable(config.resizeable)
+                        .with_always_on_top(config.always_on_top)
+                        .with_maximized(config.maximized);
 
-            let event_loop: EventLoop<()> = EventLoop::new();
-            let window = builder.build(&event_loop).unwrap();
-            let t_w = Option::Some(AFWindow {
-                window,
-                event_loop,
-            });
+                    let event_loop: EventLoop<()> = EventLoop::new();
+                    let window = builder.build(&event_loop).unwrap();
+                    let t_w = Option::Some(AFWindow {
+                        window,
+                        event_loop,
+                    });
 
-            CURRENT_WINDOW = t_w;
+                    CURRENT_WINDOW = t_w;
+                }
+                Some(AFWindow) => {
+                    // nothing... there's already a window
+                }
+            }
 
             CURRENT_WINDOW.as_ref().unwrap()
         }

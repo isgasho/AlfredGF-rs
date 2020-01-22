@@ -12,6 +12,13 @@ use wgpu::{
     ShaderModule,
     ShaderStage,
     read_spirv,
+    BindGroupLayoutBinding,
+    PipelineLayoutDescriptor,
+    BindGroupLayout,
+    BindGroupLayoutDescriptor,
+    BindGroup,
+    BindGroupDescriptor,
+    Binding,
 };
 
 use winit::{
@@ -185,6 +192,34 @@ impl<'a> AFShaderModule<'a> {
         return AFShaderModule {
             module,
             entry,
+        };
+    }
+
+}
+
+pub struct AFBindGroup {
+
+    layout: BindGroupLayout,
+    bind_group: BindGroup,
+
+}
+
+impl AFBindGroup {
+
+    pub fn new(context: &AFContext, binding_layouts: &[BindGroupLayoutBinding],
+               bindings: &[Binding]) -> Self {
+        let layout: BindGroupLayout = context.device.create_bind_group_layout(
+            &BindGroupLayoutDescriptor {
+            bindings: binding_layouts,
+        });
+        let bind_group = context.device.create_bind_group(&BindGroupDescriptor {
+            layout: &layout,
+            bindings,
+        });
+
+        return AFBindGroup {
+            layout,
+            bind_group,
         };
     }
 

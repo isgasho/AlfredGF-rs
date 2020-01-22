@@ -1,7 +1,10 @@
 mod alfredgf;
 
 use wgpu::{
-    PowerPreference
+    PowerPreference,
+    BindGroupLayoutBinding,
+    Binding,
+    BindingResource,
 };
 
 fn main() {
@@ -38,4 +41,11 @@ fn main() {
         alfredgf::AFShaderModule::new_with_bytes(context, vertex_data, entry_point);
     let f_s: alfredgf::AFShaderModule =
         alfredgf::AFShaderModule::new_with_bytes(context, fragment_data, entry_point);
+
+    // bind groups
+    let render_bind_group: alfredgf::AFBindGroup = alfredgf::AFBindGroup::new(
+        context,
+        &[],
+        &[],
+    );
 }

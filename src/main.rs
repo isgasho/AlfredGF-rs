@@ -53,7 +53,8 @@ fn main() {
     // bind groups
 
     let render_bind_group: alfredgf::AFBindGroup = alfredgf::AFBindGroup::new(
-        context, &[alfredgf::AFBinding {
+        context,
+        &[alfredgf::AFBinding {
             id: 0,
             binding: alfredgf::AFBindingType::Buffer {
                 range: 0..3,
@@ -62,7 +63,7 @@ fn main() {
                 usage: BufferUsage::VERTEX,
             },
             visibility: ShaderStage::VERTEX,
-        }]
+        }],
     );
     //    let render_bind_group: alfredgf::AFBindGroup = alfredgf::AFBindGroup::new(
     //        context,

@@ -1,8 +1,8 @@
 use wgpu::{
     read_spirv, Adapter, BackendBit, BindGroup, BindGroupDescriptor, BindGroupLayout,
-    BindGroupLayoutBinding, BindGroupLayoutDescriptor, Binding, Buffer, BufferUsage, Device,
-    DeviceDescriptor, Extensions, Limits, PipelineLayoutDescriptor, PowerPreference, Queue,
-    RequestAdapterOptions, ShaderModule, ShaderStage, Surface, BindingType,
+    BindGroupLayoutBinding, BindGroupLayoutDescriptor, Binding, BindingType, Buffer, BufferUsage,
+    Device, DeviceDescriptor, Extensions, Limits, PipelineLayoutDescriptor, PowerPreference, Queue,
+    RequestAdapterOptions, ShaderModule, ShaderStage, Surface, BufferDescriptor,
 };
 
 use winit::{
@@ -11,8 +11,8 @@ use winit::{
     window::{Icon, Window, WindowBuilder},
 };
 
-use std::ops::Range;
 use std::collections::HashMap;
+use std::ops::Range;
 
 pub struct AFImage<'a> {
     pub data: &'a [u8],
@@ -76,7 +76,7 @@ impl AFWindow {
 
                     CURRENT_WINDOW = t_w;
                 }
-                Some(AFWindow) => {
+                Some(afwindow) => {
                     // nothing... there's already a window
                 }
             };
@@ -128,7 +128,7 @@ impl AFContext {
                         queue,
                     });
                 }
-                Some(AFContext) => {
+                Some(afcontext) => {
                     //
                 }
             }
@@ -169,6 +169,8 @@ pub struct AFBindGroup {
     bind_group: BindGroup,
     index_buffer: Option<Buffer>,
     vertex_buffers: HashMap<u32, Buffer>,
+    // TODO use the below command to copy data to here and other
+    // wgpu::CommandEncoder.copy_buffer_to_buffer(&src, 0, &dst, 0, len_of_src); validate len of source first
 }
 
 pub enum AFBindingType {
@@ -191,27 +193,19 @@ impl AFBindGroup {
     // TODO rewrite this so it takes in an AFBinding
     // TODO also update the specs later
     // TODO create a buffer in here and save it in a hashmap; let them be initialized?
-    // wgpu::CommandEncoder.copy_buffer_to_buffer(&src, 0, &dst, 0, len_of_src); validate len of source first
     pub fn new(context: &AFContext, af_bindings: &[AFBinding]) -> Self {
-        let binding_layouts: Vec<BindGroupLayoutBinding> = af_bindings.iter()
-            .map(|afbinding: &AFBinding|{
-                BindGroupLayoutBinding {
-                    binding: afbinding.id,
-                    visibility: afbinding.visibility,
-                    ty: match afbinding.binding {
-                        AFBindingType::Buffer {
-                            dynamic,
-                            readonly,
-                            ..
-                        } => {
-                            BindingType::StorageBuffer {
-                                dynamic,
-                                readonly,
-                            }
-                        }
-                    },
-                }
-            }).collect::<Vec<_>>();
+        let binding_layouts: Vec<BindGroupLayoutBinding> = af_bindings
+            .iter()
+            .map(|afbinding: &AFBinding| BindGroupLayoutBinding {
+                binding: afbinding.id,
+                visibility: afbinding.visibility,
+                ty: match afbinding.binding {
+                    AFBindingType::Buffer {
+                        dynamic, readonly, ..
+                    } => BindingType::StorageBuffer { dynamic, readonly },
+                },
+            })
+            .collect::<Vec<_>>();
         let binding_layouts = binding_layouts.as_slice();
 
         let layout: BindGroupLayout =
@@ -242,6 +236,15 @@ fn create_buffer(context: &AFContext, usage: BufferUsage, data: &[u8]) -> Buffer
         .device
         .create_buffer_mapped(data.len(), usage)
         .fill_from_slice(&data);
+
+    return buffer;
+}
+
+fn create_empty_buffer(context: &AFContext, size: usize, usage: BufferUsage) -> Buffer {
+    let buffer: Buffer = context.device.create_buffer(&BufferDescriptor{
+        size,
+        usage,
+    });
 
     return buffer;
 }

@@ -276,16 +276,16 @@ pub struct AFRenderPipelineConfig<'a> {
 
 pub struct AFRenderPipeline {
 
-    //
+    uniform_buffers: HashMap<u32, Buffer>,
 
 }
 
-// contents moved every pipeline call to the bind group
+// contains every hashmap of uniforms in a vector
 // for the purpose of reference lifetimes
-static mut temp_uniform_map: Option<HashMap<u64, Buffer>> = None;
+static mut temp_uniform_map: Option<HashMap<u32, Buffer>> = None;
 
 impl AFRenderPipeline {
-    fn new(context: &AFContext, config: &AFRenderPipelineConfig) -> Self {
+    pub fn new(context: &AFContext, config: &AFRenderPipelineConfig) -> Self {
         // uniforms, samplers, and storages
         
         // this is JUST for uniforms
@@ -308,6 +308,7 @@ impl AFRenderPipeline {
         });
         
         // this is JUST for uniforms
+        let real_uniform_map: HashMap<u32, Buffer> = HashMap::new();
         unsafe {
             match temp_uniform_map {
                 None => {
@@ -320,24 +321,28 @@ impl AFRenderPipeline {
 
             let uniform_bindings: Vec<Binding> = config.uniforms.iter().map(|uniform|{
                 temp_uniform_map.as_mut().unwrap().insert(
-                    uniform.size,
+                    uniform.id,
                     create_empty_buffer(context, uniform.size as usize, BufferUsage::UNIFORM));
                 Binding {
                     binding: uniform.id,
                     resource: BindingResource::Buffer {
-                        buffer: temp_uniform_map.as_mut().unwrap().get(&uniform.size.clone()).unwrap(),
+                        buffer: temp_uniform_map.as_ref().unwrap().get(&uniform.id.clone()).unwrap(),
                         range: 0..uniform.size,
                     }
                 }
             }).collect::<Vec<_>>();
 
             temp_uniform_map.as_mut().unwrap().clear();
+
+            for uniform in config.uniforms {
+                let buff = temp_uniform_map.as_mut().unwrap().remove(&uniform.id);
+            }
         }
 
         // vertex buffers
 
         return AFRenderPipeline {
-            //
+            uniform_buffers: real_uniform_map,
         };
     }
 }

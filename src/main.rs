@@ -3,8 +3,9 @@ mod alfredgf;
 use wgpu::{
     BindGroupLayoutBinding, Binding, BindingResource, BindingType, Buffer, BufferUsage,
     PowerPreference, ShaderStage, PrimitiveTopology, BlendDescriptor, IndexFormat,
-    VertexBufferDescriptor, InputStepMode, VertexAttributeDescriptor,
+    VertexBufferDescriptor, InputStepMode, VertexAttributeDescriptor, FrontFace, CullMode,
 };
+use crate::alfredgf::AFRenderPipelineConfig;
 
 fn main() {
     // window creation
@@ -42,11 +43,17 @@ fn main() {
     let f_s: alfredgf::AFShaderModule =
         alfredgf::AFShaderModule::new_with_bytes(context, fragment_data, entry_point);
 
-    // making a buffer
-    //    let test: Buffer = alfredgf::create_buffer(context, BufferUsage::STORAGE,
-    //                                               &[
-    //                                                   0, 1,
-    //                                                   1, 0,
-    //                                                   0, 0
-    //                                               ]);
+    let render_pipeline: alfredgf::AFRenderPipeline = alfredgf::AFRenderPipeline::new
+        (context, &AFRenderPipelineConfig{
+            uniforms: &[],
+            vertex_buffer_slots: &[],
+            vertex_shader: &v_s,
+            fragment_shader: &f_s,
+            index_format: IndexFormat::Uint16,
+            primitive_topology: PrimitiveTopology::TriangleList,
+            front_face: FrontFace::Cw,
+            cull_mode: CullMode::None,
+            colour_blend: BlendDescriptor::REPLACE,
+            alpha_blend: BlendDescriptor::REPLACE,
+        });
 }

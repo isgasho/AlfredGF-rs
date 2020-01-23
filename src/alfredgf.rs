@@ -280,8 +280,11 @@ pub struct AFRenderPipeline {
 
 }
 
-// contains every hashmap of uniforms in a vector
-// for the purpose of reference lifetimes
+// contains a hashmap of uniforms;
+// cleared at the end of every pipeline call with
+// the data copied into a new hashmap
+// for the purpose of circumventing issues with
+// reference lifetimes
 static mut temp_uniform_map: Option<HashMap<u32, Buffer>> = None;
 
 impl AFRenderPipeline {
@@ -331,8 +334,6 @@ impl AFRenderPipeline {
                     }
                 }
             }).collect::<Vec<_>>();
-
-            temp_uniform_map.as_mut().unwrap().clear();
 
             for uniform in config.uniforms {
                 real_uniform_map.insert(

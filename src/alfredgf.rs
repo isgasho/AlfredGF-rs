@@ -4,7 +4,8 @@ use wgpu::{
     Device, DeviceDescriptor, Extensions, Limits, PipelineLayoutDescriptor, PowerPreference, Queue,
     RequestAdapterOptions, ShaderModule, ShaderStage, Surface, BufferDescriptor, BindingResource,
     PrimitiveTopology, FrontFace, CullMode, BlendDescriptor, IndexFormat, VertexBufferDescriptor,
-    RenderPipeline, RenderPipelineDescriptor, ProgrammableStageDescriptor,
+    RenderPipeline, RenderPipelineDescriptor, ProgrammableStageDescriptor, InputStepMode,
+    VertexFormat,
 };
 
 use winit::{
@@ -213,15 +214,42 @@ fn create_empty_buffer(context: &AFContext, size: usize, usage: BufferUsage) -> 
 // wgpu::CommandEncoder.copy_buffer_to_buffer
 // wgpu::CommandEncoder.copy_buffer_to_texture
 // wgpu::CommandEncoder.copy_texture_to_buffer
-pub struct AFRenderPipelineConfig {
+
+pub struct AFUniform { // TODO add thing that can upload to uniforms
+
+    pub id: u32,
+    pub stage: ShaderStage,
+    pub dynamic: bool,
+
+}
+
+pub struct AFVertexSlot {
+
+    pub stride: u32,
+    pub step_mode: InputStepMode,
+    pub buffer: AFVertexAttrib,
+
+}
+
+pub struct AFVertexAttrib {
+
+    pub location: u32,
+    pub offset: u64,
+    pub format: VertexFormat,
+
+}
+
+pub struct AFRenderPipelineConfig<'a> {
 
     // with bindgrouplayoutbinding, bindgrouplayout, bindingtype, and binding:
 
     // uniforms (and id to modify it later if dynamic in hashmap stored in pipeline)
-    // samplers
-    // sampled texture (is multisampled?)
-    // storage texture
-    // storage stuff (and id to modify it later if dynamic in hashmap stored in pipeline)
+    // TODO samplers
+    // TODO sampled texture (is multisampled?)
+    // TODO storage texture
+    // TODO storage stuff (and id to modify it later if dynamic in hashmap stored in pipeline)
+
+    pub uniforms: &'a [&'a AFUniform],
 
 
     // with vertexbufferdescriptor and vertexattributedescriptor:
@@ -229,6 +257,8 @@ pub struct AFRenderPipelineConfig {
     // vertex buffers (format, offset, stride, step_mode)
     // NOT the index buffer or anything about it
     // NOT the actual buffers; will be given in mainloop
+
+    pub vertex_buffer_slots: &'a [AFVertexSlot],
 
 
     // other schtuff specified below

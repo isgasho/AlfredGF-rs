@@ -289,7 +289,7 @@ impl AFBindGroup {
 
 pub struct AFRenderPipelineConfig<'a> {
 
-    pub bind_groups: &'a [AFBindGroup],
+    pub bind_groups: &'a [&'a AFBindGroup],
     pub vertex_shader: &'a AFShaderModule<'a>,
     pub fragment_shader: &'a AFShaderModule<'a>,
     pub primitive_topology: PrimitiveTopology,
@@ -298,7 +298,7 @@ pub struct AFRenderPipelineConfig<'a> {
     pub colour_blend: BlendDescriptor,
     pub alpha_blend: BlendDescriptor,
     pub index_format: IndexFormat,
-    pub vertex_buffers: &'a [VertexBufferDescriptor<'a>],
+    pub vertex_buffers: &'a [&'a VertexBufferDescriptor<'a>],
 
 }
 
@@ -309,7 +309,7 @@ pub struct AFRenderPipeline {
 }
 
 impl AFRenderPipeline {
-    fn new(context: &AFContext, config: &AFRenderPipelineConfig) -> Self {
+    pub fn new(context: &AFContext, config: &AFRenderPipelineConfig) -> Self {
         let render_pipeline: RenderPipeline = context.device.create_render_pipeline(
             &RenderPipelineDescriptor{
                 layout: &context.device.create_pipeline_layout(&PipelineLayoutDescriptor{

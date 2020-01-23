@@ -2,7 +2,8 @@ mod alfredgf;
 
 use wgpu::{
     BindGroupLayoutBinding, Binding, BindingResource, BindingType, Buffer, BufferUsage,
-    PowerPreference, ShaderStage,
+    PowerPreference, ShaderStage, PrimitiveTopology, BlendDescriptor, IndexFormat,
+    VertexBufferDescriptor, InputStepMode, VertexAttributeDescriptor,
 };
 
 fn main() {
@@ -50,7 +51,7 @@ fn main() {
     //                                               ]);
 
     // TODO make the buffer creation be on AlfredGF's end
-    // bind groups
+    // bind groups\
 
     let render_bind_group: alfredgf::AFBindGroup = alfredgf::AFBindGroup::new(
         context,
@@ -64,22 +65,25 @@ fn main() {
             visibility: ShaderStage::VERTEX,
         }],
     );
-    //    let render_bind_group: alfredgf::AFBindGroup = alfredgf::AFBindGroup::new(
-    //        context,
-    //        &[BindGroupLayoutBinding {
-    //            binding: 0,
-    //            visibility: ShaderStage::VERTEX,
-    //            ty: BindingType::StorageBuffer {
-    //                dynamic: false,
-    //                readonly: false,
-    //            },
-    //        }],
-    //        &[Binding {
-    //            binding: 0,
-    //            resource: BindingResource::Buffer {
-    //                buffer: &test,
-    //                range: 0..4,
-    //            },
-    //        }],
-    //    );
+
+    let render_pipeline_config: alfredgf::AFRenderPipelineConfig = alfredgf::AFRenderPipelineConfig{
+        bind_groups: &[&render_bind_group],
+        vertex_shader: &v_s,
+        fragment_shader: &f_s,
+        primitive_topology: PrimitiveTopology::TriangleList,
+        front_face: (),
+        cull_mode: (),
+        colour_blend: BlendDescriptor::REPLACE,
+        alpha_blend: BlendDescriptor::REPLACE,
+        index_format: IndexFormat::Uint16,
+        vertex_buffers: &[&VertexBufferDescriptor{ // TODO move this into the render pipeline creation
+            stride: 0,
+            step_mode: InputStepMode::Vertex,
+            attributes: [&VertexAttributeDescriptor{
+                //
+            }],
+        }],
+    };
+    let render_pipeline: alfredgf::AFRenderPipeline = alfredgf::AFRenderPipeline::new
+        (context, &render_pipeline_config);
 }

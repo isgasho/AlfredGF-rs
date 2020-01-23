@@ -220,6 +220,7 @@ pub struct AFUniform { // TODO add thing that can upload to uniforms
     pub id: u32,
     pub stage: ShaderStage,
     pub dynamic: bool,
+    pub size: u64,
 
 }
 
@@ -277,6 +278,52 @@ pub struct AFRenderPipeline {
 
     //
 
+}
+
+impl AFRenderPipeline {
+    fn new(context: &AFContext, config: &AFRenderPipelineConfig) -> Self {
+        // uniforms, samplers, and storages
+        
+        // this is JUST for uniforms
+        let uniform_binding_layouts: Vec<BindGroupLayoutBinding> = config.uniforms.iter()
+            .map(|uniform| {
+                BindGroupLayoutBinding {
+                    binding: uniform.id,
+                    visibility: uniform.stage,
+                    ty: BindingType::UniformBuffer {
+                        dynamic: uniform.dynamic,
+                    },
+                }
+            }).collect::<Vec<_>>();
+
+        // compiled from uniforms, samplers, and storages
+        let binding_layouts: &[BindGroupLayoutBinding] = uniform_binding_layouts.as_slice();
+        
+        let bind_group_layout = context.device.create_bind_group_layout(&BindGroupLayoutDescriptor{
+            bindings: binding_layouts,
+        });
+        
+        // this is JUST for uniforms
+        let mut uniform_buffers: HashMap<u64, Buffer> = HashMap::new();
+        let uniform_bindings: Vec<Binding> = config.uniforms.iter().map(|uniform|{
+            uniform_buffers.insert(
+                uniform.size,
+                create_empty_buffer(context, uniform.size as usize, BufferUsage::UNIFORM));
+            Binding {
+                binding: uniform.id,
+                resource: BindingResource::Buffer {
+                    buffer: uniform_buffers.get(&uniform.size.clone()).unwrap(),
+                    range: 0..uniform.size,
+                }
+            }
+        }).collect::<Vec<_>>();
+
+        // vertex buffers
+
+        return AFRenderPipeline {
+            //
+        };
+    }
 }
 
 //static mut v_bs: Option<HashMap<u32, Buffer>> = None;

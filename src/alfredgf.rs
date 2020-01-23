@@ -3,6 +3,7 @@ use wgpu::{
     BindGroupLayoutBinding, BindGroupLayoutDescriptor, Binding, BindingType, Buffer, BufferUsage,
     Device, DeviceDescriptor, Extensions, Limits, PipelineLayoutDescriptor, PowerPreference, Queue,
     RequestAdapterOptions, ShaderModule, ShaderStage, Surface, BufferDescriptor, BindingResource,
+    PrimitiveTopology, FrontFace, CullMode, BlendDescriptor, IndexFormat, VertexBufferDescriptor,
 };
 
 use winit::{
@@ -167,7 +168,7 @@ impl<'a> AFShaderModule<'a> {
 pub struct AFBindGroup {
     layout: BindGroupLayout,
     bind_group: BindGroup,
-    index_buffer: Option<Buffer>,
+    //index_buffer: Option<Buffer>,
     vertex_buffers: HashMap<u32, Buffer>,
     // TODO use the below command to copy data to here and other
     // wgpu::CommandEncoder.copy_buffer_to_buffer(&src, 0, &dst, 0, len_of_src); validate len of source first
@@ -186,6 +187,24 @@ pub struct AFBinding {
     pub id: u32,
     pub binding: AFBindingType,
     pub visibility: ShaderStage,
+}
+
+fn create_buffer(context: &AFContext, usage: BufferUsage, data: &[u8]) -> Buffer {
+    let buffer: Buffer = context
+        .device
+        .create_buffer_mapped(data.len(), usage)
+        .fill_from_slice(&data);
+
+    return buffer;
+}
+
+fn create_empty_buffer(context: &AFContext, size: usize, usage: BufferUsage) -> Buffer {
+    let buffer: Buffer = context.device.create_buffer(&BufferDescriptor{
+        size: size as u64,
+        usage,
+    });
+
+    return buffer;
 }
 
 static mut v_bs: Option<HashMap<u32, Buffer>> = None;
@@ -223,6 +242,7 @@ impl AFBindGroup {
                     bindings: binding_layouts,
                 });
 
+        // TODO find out if bindings are actually necessary and when exactly
         let bindings: Vec<Binding> = af_bindings.iter().map(|af_binding: &AFBinding| {
             match af_binding.binding {
                 AFBindingType::Buffer { size, dynamic, readonly } => {
@@ -260,26 +280,37 @@ impl AFBindGroup {
         return AFBindGroup {
             layout,
             bind_group,
-            index_buffer: None, // TODO find out how index buffers work here
+            //index_buffer: None,
             vertex_buffers: n_m,
         };
     }
 }
 
-fn create_buffer(context: &AFContext, usage: BufferUsage, data: &[u8]) -> Buffer {
-    let buffer: Buffer = context
-        .device
-        .create_buffer_mapped(data.len(), usage)
-        .fill_from_slice(&data);
+pub struct AFRenderPipelineConfig<'a> {
 
-    return buffer;
+    pub bind_groups: &'a [BindGroupLayoutBinding],
+    pub vertex_shader: &'a AFShaderModule<'a>,
+    pub fragment_shader: &'a AFShaderModule<'a>,
+    pub primitive_topology: PrimitiveTopology,
+    pub front_face: FrontFace,
+    pub cull_mode: CullMode,
+    pub colour_blend: BlendDescriptor,
+    pub alpha_blend: BlendDescriptor,
+    pub index_format: IndexFormat,
+    pub vertex_buffers: &'a [VertexBufferDescriptor<'a>]
+
 }
 
-fn create_empty_buffer(context: &AFContext, size: usize, usage: BufferUsage) -> Buffer {
-    let buffer: Buffer = context.device.create_buffer(&BufferDescriptor{
-        size: size as u64,
-        usage,
-    });
+pub struct AFRenderPipeline {
 
-    return buffer;
+    //
+
+}
+
+impl AFRenderPipeline {
+    fn new() -> Self {
+        return AFRenderPipeline{
+            //
+        };
+    }
 }

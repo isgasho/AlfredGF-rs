@@ -42,6 +42,7 @@ fn main() {
     let f_s: alfredgf::AFShaderModule =
         alfredgf::AFShaderModule::new_with_bytes(context, fragment_data, entry_point);
 
+    // pipeline
     let render_pipeline: alfredgf::AFRenderPipeline = alfredgf::AFRenderPipeline::new
         (context, &alfredgf::AFRenderPipelineConfig{
             uniforms: &[&alfredgf::AFUniform {

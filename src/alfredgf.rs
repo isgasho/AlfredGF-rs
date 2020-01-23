@@ -4,6 +4,7 @@ use wgpu::{
     Device, DeviceDescriptor, Extensions, Limits, PipelineLayoutDescriptor, PowerPreference, Queue,
     RequestAdapterOptions, ShaderModule, ShaderStage, Surface, BufferDescriptor, BindingResource,
     PrimitiveTopology, FrontFace, CullMode, BlendDescriptor, IndexFormat, VertexBufferDescriptor,
+    RenderPipeline, RenderPipelineDescriptor, ProgrammableStageDescriptor,
 };
 
 use winit::{
@@ -288,7 +289,7 @@ impl AFBindGroup {
 
 pub struct AFRenderPipelineConfig<'a> {
 
-    pub bind_groups: &'a [BindGroupLayoutBinding],
+    pub bind_groups: &'a [AFBindGroup],
     pub vertex_shader: &'a AFShaderModule<'a>,
     pub fragment_shader: &'a AFShaderModule<'a>,
     pub primitive_topology: PrimitiveTopology,
@@ -297,7 +298,7 @@ pub struct AFRenderPipelineConfig<'a> {
     pub colour_blend: BlendDescriptor,
     pub alpha_blend: BlendDescriptor,
     pub index_format: IndexFormat,
-    pub vertex_buffers: &'a [VertexBufferDescriptor<'a>]
+    pub vertex_buffers: &'a [VertexBufferDescriptor<'a>],
 
 }
 
@@ -308,7 +309,32 @@ pub struct AFRenderPipeline {
 }
 
 impl AFRenderPipeline {
-    fn new() -> Self {
+    fn new(context: &AFContext, config: &AFRenderPipelineConfig) -> Self {
+        let render_pipeline: RenderPipeline = context.device.create_render_pipeline(
+            &RenderPipelineDescriptor{
+                layout: &context.device.create_pipeline_layout(&PipelineLayoutDescriptor{
+                    bind_group_layouts: config.bind_groups.iter().map(|bind_group|{
+                        &bind_group.layout
+                    }).collect::<Vec<_>>().as_slice(),
+                }),
+                vertex_stage: ProgrammableStageDescriptor{
+                    module: &config.vertex_shader.module,
+                    entry_point: config.vertex_shader.entry,
+                },
+                fragment_stage: Option::Some(ProgrammableStageDescriptor{
+                    module: &config.fragment_shader.module,
+                    entry_point: config.fragment_shader.entry,
+                }),
+                rasterization_state: None,
+                primitive_topology: config.primitive_topology,
+                color_states: [],
+                depth_stencil_state: None,
+                index_format: (),
+                vertex_buffers: [],
+                sample_count: 0,
+                sample_mask: 0,
+                alpha_to_coverage_enabled: false,
+            });
         return AFRenderPipeline{
             //
         };

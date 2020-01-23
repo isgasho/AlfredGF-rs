@@ -243,11 +243,11 @@ pub struct AFRenderPipelineConfig<'a> {
 
     // with bindgrouplayoutbinding, bindgrouplayout, bindingtype, and binding:
 
-    // uniforms (and id to modify it later if dynamic in hashmap stored in pipeline)
+    // uniforms (TODO make modifiable later if dynamic and initializable with vals)
     // TODO samplers
     // TODO sampled texture (is multisampled?)
     // TODO storage texture
-    // TODO storage stuff (and id to modify it later if dynamic in hashmap stored in pipeline)
+    // TODO storage stuff (modify later if dynamic)
 
     pub uniforms: &'a [&'a AFUniform],
 
@@ -255,13 +255,21 @@ pub struct AFRenderPipelineConfig<'a> {
     // with vertexbufferdescriptor and vertexattributedescriptor:
 
     // vertex buffers (format, offset, stride, step_mode)
-    // NOT the index buffer or anything about it
+    // NOT the index buffer
     // NOT the actual buffers; will be given in mainloop
 
     pub vertex_buffer_slots: &'a [&'a AFVertexSlot<'a>],
 
 
     // other schtuff specified below
+    pub vertex_shader: &'a AFShaderModule<'a>,
+    pub fragment_shader: &'a AFShaderModule<'a>,
+    pub index_format: IndexFormat,
+    pub primitive_topology: PrimitiveTopology,
+    pub front_face: FrontFace,
+    pub cull_mode: CullMode,
+    pub colour_blend: BlendDescriptor,
+    pub alpha_blend: BlendDescriptor,
 
 }
 

@@ -223,11 +223,11 @@ pub struct AFUniform { // TODO add thing that can upload to uniforms
 
 }
 
-pub struct AFVertexSlot {
+pub struct AFVertexSlot<'a> {
 
     pub stride: u32,
     pub step_mode: InputStepMode,
-    pub buffer: AFVertexAttrib,
+    pub attribs: &'a [&'a AFVertexAttrib],
 
 }
 
@@ -258,7 +258,7 @@ pub struct AFRenderPipelineConfig<'a> {
     // NOT the index buffer or anything about it
     // NOT the actual buffers; will be given in mainloop
 
-    pub vertex_buffer_slots: &'a [AFVertexSlot],
+    pub vertex_buffer_slots: &'a [&'a AFVertexSlot<'a>],
 
 
     // other schtuff specified below

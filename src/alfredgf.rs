@@ -191,6 +191,7 @@ impl AFBindGroup {
     // TODO rewrite this so it takes in an AFBinding
     // TODO also update the specs later
     // TODO create a buffer in here and save it in a hashmap; let them be initialized?
+    // wgpu::CommandEncoder.copy_buffer_to_buffer(&src, 0, &dst, 0, len_of_src); validate len of source first
     pub fn new(context: &AFContext, af_bindings: &[AFBinding]) -> Self {
         let binding_layouts: Vec<BindGroupLayoutBinding> = af_bindings.iter()
             .map(|afbinding: &AFBinding|{

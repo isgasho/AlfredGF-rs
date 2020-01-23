@@ -198,16 +198,20 @@ impl AFBindGroup {
         unsafe {
             v_bs = Option::Some(HashMap::new());
         }
+        let mut shader_ids: Vec<u32> = Vec::new();
         let binding_layouts: Vec<BindGroupLayoutBinding> = af_bindings
             .iter()
-            .map(|af_binding: &AFBinding| BindGroupLayoutBinding {
-                binding: af_binding.id,
-                visibility: af_binding.visibility,
-                ty: match af_binding.binding {
-                    AFBindingType::Buffer {
-                        dynamic, readonly, ..
-                    } => BindingType::StorageBuffer { dynamic, readonly },
-                },
+            .map(|af_binding: &AFBinding| {
+                shader_ids.push(af_binding.id);
+                BindGroupLayoutBinding {
+                    binding: af_binding.id,
+                    visibility: af_binding.visibility,
+                    ty: match af_binding.binding {
+                        AFBindingType::Buffer {
+                            dynamic, readonly, ..
+                        } => BindingType::StorageBuffer { dynamic, readonly },
+                    },
+                }
             })
             .collect::<Vec<_>>();
         let binding_layouts = binding_layouts.as_slice();
@@ -244,11 +248,20 @@ impl AFBindGroup {
             bindings,
         });
 
+        let mut n_m: HashMap<u32, Buffer> = HashMap::new();
+
+        unsafe {
+            for i in shader_ids.iter() {
+                let b = v_bs.as_mut().unwrap().remove(&i).unwrap();
+                n_m.insert(*i, b);
+            }
+        }
+
         return AFBindGroup {
             layout,
             bind_group,
-            index_buffer: None, // TODO create these buffers when making the bindings and save them
-            vertex_buffers: HashMap::new(),
+            index_buffer: None, // TODO find out how index buffers work here
+            vertex_buffers: n_m,
         };
     }
 }

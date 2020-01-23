@@ -308,7 +308,7 @@ impl AFRenderPipeline {
         });
         
         // this is JUST for uniforms
-        let real_uniform_map: HashMap<u32, Buffer> = HashMap::new();
+        let mut real_uniform_map: HashMap<u32, Buffer> = HashMap::new();
         unsafe {
             match temp_uniform_map {
                 None => {
@@ -335,7 +335,8 @@ impl AFRenderPipeline {
             temp_uniform_map.as_mut().unwrap().clear();
 
             for uniform in config.uniforms {
-                let buff = temp_uniform_map.as_mut().unwrap().remove(&uniform.id);
+                real_uniform_map.insert(
+                    uniform.id, temp_uniform_map.as_mut().unwrap().remove(&uniform.id).unwrap());
             }
         }
 

@@ -280,6 +280,10 @@ pub struct AFRenderPipeline {
 
 }
 
+// contents moved every pipeline call to the bind group
+// for the purpose of reference lifetimes
+static mut temp_uniform_map: Option<HashMap<u64, Buffer>> = None;
+
 impl AFRenderPipeline {
     fn new(context: &AFContext, config: &AFRenderPipelineConfig) -> Self {
         // uniforms, samplers, and storages
@@ -304,19 +308,31 @@ impl AFRenderPipeline {
         });
         
         // this is JUST for uniforms
-        let mut uniform_buffers: HashMap<u64, Buffer> = HashMap::new();
-        let uniform_bindings: Vec<Binding> = config.uniforms.iter().map(|uniform|{
-            uniform_buffers.insert(
-                uniform.size,
-                create_empty_buffer(context, uniform.size as usize, BufferUsage::UNIFORM));
-            Binding {
-                binding: uniform.id,
-                resource: BindingResource::Buffer {
-                    buffer: uniform_buffers.get(&uniform.size.clone()).unwrap(),
-                    range: 0..uniform.size,
+        unsafe {
+            match temp_uniform_map {
+                None => {
+                    temp_uniform_map = Some(HashMap::new());
                 }
+                Some(..) => {
+                    //
+                },
             }
-        }).collect::<Vec<_>>();
+
+            let uniform_bindings: Vec<Binding> = config.uniforms.iter().map(|uniform|{
+                temp_uniform_map.as_mut().unwrap().insert(
+                    uniform.size,
+                    create_empty_buffer(context, uniform.size as usize, BufferUsage::UNIFORM));
+                Binding {
+                    binding: uniform.id,
+                    resource: BindingResource::Buffer {
+                        buffer: temp_uniform_map.as_mut().unwrap().get(&uniform.size.clone()).unwrap(),
+                        range: 0..uniform.size,
+                    }
+                }
+            }).collect::<Vec<_>>();
+
+            temp_uniform_map.as_mut().unwrap().clear();
+        }
 
         // vertex buffers
 

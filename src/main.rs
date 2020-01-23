@@ -5,7 +5,6 @@ use wgpu::{
     PowerPreference, ShaderStage, PrimitiveTopology, BlendDescriptor, IndexFormat,
     VertexBufferDescriptor, InputStepMode, VertexAttributeDescriptor, FrontFace, CullMode,
 };
-use crate::alfredgf::AFRenderPipelineConfig;
 
 fn main() {
     // window creation
@@ -44,8 +43,13 @@ fn main() {
         alfredgf::AFShaderModule::new_with_bytes(context, fragment_data, entry_point);
 
     let render_pipeline: alfredgf::AFRenderPipeline = alfredgf::AFRenderPipeline::new
-        (context, &AFRenderPipelineConfig{
-            uniforms: &[],
+        (context, &alfredgf::AFRenderPipelineConfig{
+            uniforms: &[&alfredgf::AFUniform {
+                id: 0,
+                stage: ShaderStage::VERTEX,
+                dynamic: false,
+                byte_size: 4, // 4 byte float
+            }],
             vertex_buffer_slots: &[],
             vertex_shader: &v_s,
             fragment_shader: &f_s,

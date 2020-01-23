@@ -208,6 +208,11 @@ fn create_empty_buffer(context: &AFContext, size: usize, usage: BufferUsage) -> 
     return buffer;
 }
 
+// make note of these functions:
+
+// wgpu::CommandEncoder.copy_buffer_to_buffer
+// wgpu::CommandEncoder.copy_buffer_to_texture
+// wgpu::CommandEncoder.copy_texture_to_buffer
 pub struct AFRenderPipelineConfig {
 
     // with bindgrouplayoutbinding, bindgrouplayout, bindingtype, and binding:

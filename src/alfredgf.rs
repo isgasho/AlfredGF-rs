@@ -2,7 +2,7 @@ use wgpu::{
     read_spirv, Adapter, BackendBit, BindGroup, BindGroupDescriptor, BindGroupLayout,
     BindGroupLayoutBinding, BindGroupLayoutDescriptor, Binding, BindingType, Buffer, BufferUsage,
     Device, DeviceDescriptor, Extensions, Limits, PipelineLayoutDescriptor, PowerPreference, Queue,
-    RequestAdapterOptions, ShaderModule, ShaderStage, Surface, BufferDescriptor,
+    RequestAdapterOptions, ShaderModule, ShaderStage, Surface, BufferDescriptor, BindingResource,
 };
 
 use winit::{
@@ -175,10 +175,9 @@ pub struct AFBindGroup {
 
 pub enum AFBindingType {
     Buffer {
-        range: Range<u64>,
+        size: usize,
         dynamic: bool,
         readonly: bool,
-        usage: BufferUsage,
     },
     // TODO add more bindings here
 }
@@ -189,17 +188,22 @@ pub struct AFBinding {
     pub visibility: ShaderStage,
 }
 
+static mut v_bs: Option<HashMap<u32, Buffer>> = None;
+
 impl AFBindGroup {
     // TODO rewrite this so it takes in an AFBinding
     // TODO also update the specs later
     // TODO create a buffer in here and save it in a hashmap; let them be initialized?
     pub fn new(context: &AFContext, af_bindings: &[AFBinding]) -> Self {
+        unsafe {
+            v_bs = Option::Some(HashMap::new());
+        }
         let binding_layouts: Vec<BindGroupLayoutBinding> = af_bindings
             .iter()
-            .map(|afbinding: &AFBinding| BindGroupLayoutBinding {
-                binding: afbinding.id,
-                visibility: afbinding.visibility,
-                ty: match afbinding.binding {
+            .map(|af_binding: &AFBinding| BindGroupLayoutBinding {
+                binding: af_binding.id,
+                visibility: af_binding.visibility,
+                ty: match af_binding.binding {
                     AFBindingType::Buffer {
                         dynamic, readonly, ..
                     } => BindingType::StorageBuffer { dynamic, readonly },
@@ -214,8 +218,26 @@ impl AFBindGroup {
                 .create_bind_group_layout(&BindGroupLayoutDescriptor {
                     bindings: binding_layouts,
                 });
-        // TODO add some proper bindings here
-        let bindings: &[Binding] = &[];
+
+        let bindings: Vec<Binding> = af_bindings.iter().map(|af_binding: &AFBinding| {
+            match af_binding.binding {
+                AFBindingType::Buffer { size, dynamic, readonly } => {
+                    unsafe {
+                        v_bs.as_mut().unwrap().insert(af_binding.id,
+                                             create_empty_buffer(context, size, BufferUsage::STORAGE));
+                        // NOTE THAT THE BUFFER USAGE IS SPECIFIED WHEN MAKING A VERTEX BUFFER TO PASS, NOT HERE
+                        Binding {
+                            binding: 0,
+                            resource: BindingResource::Buffer{
+                                buffer: v_bs.as_mut().unwrap().get(&af_binding.id).unwrap(),
+                                range: 0..size as u64,
+                            },
+                        }
+                    }
+                }
+            }
+        }).collect::<Vec<_>>();
+        let bindings: &[Binding] = bindings.as_slice();
 
         let bind_group = context.device.create_bind_group(&BindGroupDescriptor {
             layout: &layout,
@@ -242,7 +264,7 @@ fn create_buffer(context: &AFContext, usage: BufferUsage, data: &[u8]) -> Buffer
 
 fn create_empty_buffer(context: &AFContext, size: usize, usage: BufferUsage) -> Buffer {
     let buffer: Buffer = context.device.create_buffer(&BufferDescriptor{
-        size,
+        size: size as u64,
         usage,
     });
 

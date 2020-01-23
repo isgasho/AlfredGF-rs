@@ -57,10 +57,9 @@ fn main() {
         &[alfredgf::AFBinding {
             id: 0,
             binding: alfredgf::AFBindingType::Buffer {
-                range: 0..3,
+                size: 3,
                 dynamic: false,
                 readonly: false,
-                usage: BufferUsage::VERTEX,
             },
             visibility: ShaderStage::VERTEX,
         }],

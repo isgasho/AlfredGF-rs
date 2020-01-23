@@ -49,41 +49,4 @@ fn main() {
     //                                                   1, 0,
     //                                                   0, 0
     //                                               ]);
-
-    // TODO make the buffer creation be on AlfredGF's end
-    // bind groups\
-
-    let render_bind_group: alfredgf::AFBindGroup = alfredgf::AFBindGroup::new(
-        context,
-        &[alfredgf::AFBinding {
-            id: 0,
-            binding: alfredgf::AFBindingType::Buffer {
-                size: 3,
-                dynamic: false,
-                readonly: false,
-            },
-            visibility: ShaderStage::VERTEX,
-        }],
-    );
-
-    let render_pipeline_config: alfredgf::AFRenderPipelineConfig = alfredgf::AFRenderPipelineConfig{
-        bind_groups: &[&render_bind_group],
-        vertex_shader: &v_s,
-        fragment_shader: &f_s,
-        primitive_topology: PrimitiveTopology::TriangleList,
-        front_face: (),
-        cull_mode: (),
-        colour_blend: BlendDescriptor::REPLACE,
-        alpha_blend: BlendDescriptor::REPLACE,
-        index_format: IndexFormat::Uint16,
-        vertex_buffers: &[&VertexBufferDescriptor{ // TODO move this into the render pipeline creation
-            stride: 0,
-            step_mode: InputStepMode::Vertex,
-            attributes: [&VertexAttributeDescriptor{
-                //
-            }],
-        }],
-    };
-    let render_pipeline: alfredgf::AFRenderPipeline = alfredgf::AFRenderPipeline::new
-        (context, &render_pipeline_config);
 }

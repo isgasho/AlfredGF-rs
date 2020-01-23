@@ -208,97 +208,25 @@ fn create_empty_buffer(context: &AFContext, size: usize, usage: BufferUsage) -> 
     return buffer;
 }
 
-static mut v_bs: Option<HashMap<u32, Buffer>> = None;
+pub struct AFRenderPipelineConfig {
 
-impl AFBindGroup {
-    // TODO rewrite this so it takes in an AFBinding
-    // TODO also update the specs later
-    // TODO create a buffer in here and save it in a hashmap; let them be initialized?
-    pub fn new(context: &AFContext, af_bindings: &[AFBinding]) -> Self {
-        unsafe {
-            v_bs = Option::Some(HashMap::new());
-        }
-        let mut shader_ids: Vec<u32> = Vec::new();
-        let binding_layouts: Vec<BindGroupLayoutBinding> = af_bindings
-            .iter()
-            .map(|af_binding: &AFBinding| {
-                shader_ids.push(af_binding.id);
-                BindGroupLayoutBinding {
-                    binding: af_binding.id,
-                    visibility: af_binding.visibility,
-                    ty: match af_binding.binding {
-                        AFBindingType::Buffer {
-                            dynamic, readonly, ..
-                        } => BindingType::StorageBuffer { dynamic, readonly },
-                    },
-                }
-            })
-            .collect::<Vec<_>>();
-        let binding_layouts = binding_layouts.as_slice();
+    // with bindgrouplayoutbinding, bindgrouplayout, bindingtype, and binding:
 
-        let layout: BindGroupLayout =
-            context
-                .device
-                .create_bind_group_layout(&BindGroupLayoutDescriptor {
-                    bindings: binding_layouts,
-                });
+    // uniforms (and id to modify it later if dynamic in hashmap stored in pipeline)
+    // samplers
+    // sampled texture (is multisampled?)
+    // storage texture
+    // storage stuff (and id to modify it later if dynamic in hashmap stored in pipeline)
 
-        // TODO find out if bindings are actually necessary and when exactly
-        let bindings: Vec<Binding> = af_bindings.iter().map(|af_binding: &AFBinding| {
-            match af_binding.binding {
-                AFBindingType::Buffer { size, dynamic, readonly } => {
-                    unsafe {
-                        v_bs.as_mut().unwrap().insert(af_binding.id,
-                                             create_empty_buffer(context, size, BufferUsage::STORAGE));
-                        // NOTE THAT THE BUFFER USAGE IS SPECIFIED WHEN MAKING A VERTEX BUFFER TO PASS, NOT HERE
-                        Binding {
-                            binding: 0,
-                            resource: BindingResource::Buffer{
-                                buffer: v_bs.as_mut().unwrap().get(&af_binding.id).unwrap(),
-                                range: 0..size as u64,
-                            },
-                        }
-                    }
-                }
-            }
-        }).collect::<Vec<_>>();
-        let bindings: &[Binding] = bindings.as_slice();
 
-        let bind_group = context.device.create_bind_group(&BindGroupDescriptor {
-            layout: &layout,
-            bindings,
-        });
+    // with vertexbufferdescriptor and vertexattributedescriptor:
 
-        let mut n_m: HashMap<u32, Buffer> = HashMap::new();
+    // vertex buffers (format, offset, stride, step_mode)
+    // NOT the index buffer or anything about it
+    // NOT the actual buffers; will be given in mainloop
 
-        unsafe {
-            for i in shader_ids.iter() {
-                let b = v_bs.as_mut().unwrap().remove(&i).unwrap();
-                n_m.insert(*i, b);
-            }
-        }
 
-        return AFBindGroup {
-            layout,
-            bind_group,
-            //index_buffer: None,
-            vertex_buffers: n_m,
-        };
-    }
-}
-
-pub struct AFRenderPipelineConfig<'a> {
-
-    pub bind_groups: &'a [&'a AFBindGroup],
-    pub vertex_shader: &'a AFShaderModule<'a>,
-    pub fragment_shader: &'a AFShaderModule<'a>,
-    pub primitive_topology: PrimitiveTopology,
-    pub front_face: FrontFace,
-    pub cull_mode: CullMode,
-    pub colour_blend: BlendDescriptor,
-    pub alpha_blend: BlendDescriptor,
-    pub index_format: IndexFormat,
-    pub vertex_buffers: &'a [&'a VertexBufferDescriptor<'a>],
+    // other schtuff specified below
 
 }
 
@@ -308,35 +236,135 @@ pub struct AFRenderPipeline {
 
 }
 
-impl AFRenderPipeline {
-    pub fn new(context: &AFContext, config: &AFRenderPipelineConfig) -> Self {
-        let render_pipeline: RenderPipeline = context.device.create_render_pipeline(
-            &RenderPipelineDescriptor{
-                layout: &context.device.create_pipeline_layout(&PipelineLayoutDescriptor{
-                    bind_group_layouts: config.bind_groups.iter().map(|bind_group|{
-                        &bind_group.layout
-                    }).collect::<Vec<_>>().as_slice(),
-                }),
-                vertex_stage: ProgrammableStageDescriptor{
-                    module: &config.vertex_shader.module,
-                    entry_point: config.vertex_shader.entry,
-                },
-                fragment_stage: Option::Some(ProgrammableStageDescriptor{
-                    module: &config.fragment_shader.module,
-                    entry_point: config.fragment_shader.entry,
-                }),
-                rasterization_state: None,
-                primitive_topology: config.primitive_topology,
-                color_states: [],
-                depth_stencil_state: None,
-                index_format: (),
-                vertex_buffers: [],
-                sample_count: 0,
-                sample_mask: 0,
-                alpha_to_coverage_enabled: false,
-            });
-        return AFRenderPipeline{
-            //
-        };
-    }
-}
+//static mut v_bs: Option<HashMap<u32, Buffer>> = None;
+//
+//impl AFBindGroup {
+//    // TODO rewrite this so it takes in an AFBinding
+//    // TODO also update the specs later
+//    // TODO create a buffer in here and save it in a hashmap; let them be initialized?
+//    pub fn new(context: &AFContext, af_bindings: &[AFBinding]) -> Self {
+//        unsafe {
+//            v_bs = Option::Some(HashMap::new());
+//        }
+//        let mut shader_ids: Vec<u32> = Vec::new();
+//        let binding_layouts: Vec<BindGroupLayoutBinding> = af_bindings
+//            .iter()
+//            .map(|af_binding: &AFBinding| {
+//                shader_ids.push(af_binding.id);
+//                BindGroupLayoutBinding {
+//                    binding: af_binding.id,
+//                    visibility: af_binding.visibility,
+//                    ty: match af_binding.binding {
+//                        AFBindingType::Buffer {
+//                            dynamic, readonly, ..
+//                        } => BindingType::StorageBuffer { dynamic, readonly },
+//                    },
+//                }
+//            })
+//            .collect::<Vec<_>>();
+//        let binding_layouts = binding_layouts.as_slice();
+//
+//        let layout: BindGroupLayout =
+//            context
+//                .device
+//                .create_bind_group_layout(&BindGroupLayoutDescriptor {
+//                    bindings: binding_layouts,
+//                });
+//
+//        // TODO find out if bindings are actually necessary and when exactly
+//        let bindings: Vec<Binding> = af_bindings.iter().map(|af_binding: &AFBinding| {
+//            match af_binding.binding {
+//                AFBindingType::Buffer { size, dynamic, readonly } => {
+//                    unsafe {
+//                        v_bs.as_mut().unwrap().insert(af_binding.id,
+//                                             create_empty_buffer(context, size, BufferUsage::STORAGE));
+//                        // NOTE THAT THE BUFFER USAGE IS SPECIFIED WHEN MAKING A VERTEX BUFFER TO PASS, NOT HERE
+//                        Binding {
+//                            binding: 0,
+//                            resource: BindingResource::Buffer{
+//                                buffer: v_bs.as_mut().unwrap().get(&af_binding.id).unwrap(),
+//                                range: 0..size as u64,
+//                            },
+//                        }
+//                    }
+//                }
+//            }
+//        }).collect::<Vec<_>>();
+//        let bindings: &[Binding] = bindings.as_slice();
+//
+//        let bind_group = context.device.create_bind_group(&BindGroupDescriptor {
+//            layout: &layout,
+//            bindings,
+//        });
+//
+//        let mut n_m: HashMap<u32, Buffer> = HashMap::new();
+//
+//        unsafe {
+//            for i in shader_ids.iter() {
+//                let b = v_bs.as_mut().unwrap().remove(&i).unwrap();
+//                n_m.insert(*i, b);
+//            }
+//        }
+//
+//        return AFBindGroup {
+//            layout,
+//            bind_group,
+//            //index_buffer: None,
+//            vertex_buffers: n_m,
+//        };
+//    }
+//}
+//
+//pub struct AFRenderPipelineConfig<'a> {
+//
+//    pub bind_groups: &'a [&'a AFBindGroup],
+//    pub vertex_shader: &'a AFShaderModule<'a>,
+//    pub fragment_shader: &'a AFShaderModule<'a>,
+//    pub primitive_topology: PrimitiveTopology,
+//    pub front_face: FrontFace,
+//    pub cull_mode: CullMode,
+//    pub colour_blend: BlendDescriptor,
+//    pub alpha_blend: BlendDescriptor,
+//    pub index_format: IndexFormat,
+//    pub vertex_buffers: &'a [&'a VertexBufferDescriptor<'a>],
+//
+//}
+//
+//pub struct AFRenderPipeline {
+//
+//    //
+//
+//}
+//
+//impl AFRenderPipeline {
+//    pub fn new(context: &AFContext, config: &AFRenderPipelineConfig) -> Self {
+//        let render_pipeline: RenderPipeline = context.device.create_render_pipeline(
+//            &RenderPipelineDescriptor{
+//                layout: &context.device.create_pipeline_layout(&PipelineLayoutDescriptor{
+//                    bind_group_layouts: config.bind_groups.iter().map(|bind_group|{
+//                        &bind_group.layout
+//                    }).collect::<Vec<_>>().as_slice(),
+//                }),
+//                vertex_stage: ProgrammableStageDescriptor{
+//                    module: &config.vertex_shader.module,
+//                    entry_point: config.vertex_shader.entry,
+//                },
+//                fragment_stage: Option::Some(ProgrammableStageDescriptor{
+//                    module: &config.fragment_shader.module,
+//                    entry_point: config.fragment_shader.entry,
+//                }),
+//                rasterization_state: None,
+//                primitive_topology: config.primitive_topology,
+//                color_states: [],
+//                depth_stencil_state: None,
+//                index_format: (),
+//                vertex_buffers: [],
+//                sample_count: 0,
+//                sample_mask: 0,
+//                alpha_to_coverage_enabled: false,
+//            });
+//        return AFRenderPipeline{
+//            //
+//        };
+//    }
+//}

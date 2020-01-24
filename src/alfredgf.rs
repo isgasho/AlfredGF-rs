@@ -5,7 +5,8 @@ use wgpu::{
     RequestAdapterOptions, ShaderModule, ShaderStage, Surface, BufferDescriptor, BindingResource,
     PrimitiveTopology, FrontFace, CullMode, BlendDescriptor, IndexFormat, VertexBufferDescriptor,
     RenderPipeline, RenderPipelineDescriptor, ProgrammableStageDescriptor, InputStepMode,
-    VertexFormat,
+    VertexFormat, PipelineLayout, RasterizationStateDescriptor, ColorStateDescriptor, ColorWrite,
+    SwapChain, SwapChainDescriptor, TextureUsage, TextureFormat, PresentMode,
 };
 
 use winit::{
@@ -92,6 +93,8 @@ impl AFWindow {
 pub struct AFContextConfig {
     pub anisotropic_filtering: bool,
     pub power_preference: PowerPreference,
+    pub vsync: bool,
+    pub size: [u32; 2],
 }
 
 pub struct AFContext {
@@ -99,6 +102,7 @@ pub struct AFContext {
     surface: Surface,
     device: Device,
     queue: Queue,
+    swap_chain: SwapChain,
 }
 
 static mut CURRENT_CONTEXT: Option<AFContext> = None;
@@ -124,11 +128,29 @@ impl AFContext {
                             limits: Limits::default(),
                         });
 
+                    let present_mode: PresentMode = match config.vsync {
+                        true => PresentMode::Vsync,
+                        false => PresentMode::NoVsync,
+                    };
+
+                    let size = PhysicalSize::new(config.size[0], config.size[1]);
+                    let swap_chain: SwapChain = device.create_swap_chain(
+                        &surface,
+                        &SwapChainDescriptor {
+                            usage: TextureUsage::OUTPUT_ATTACHMENT,
+                            format: TextureFormat::Bgra8UnormSrgb,
+                            width: size.width as u32,
+                            height: size.height as u32,
+                            present_mode,
+                        },
+                    );
+
                     CURRENT_CONTEXT = Option::Some(AFContext {
                         size,
                         surface,
                         device,
                         queue,
+                        swap_chain,
                     });
                 }
                 Some(afcontext) => {
@@ -342,6 +364,58 @@ impl AFRenderPipeline {
         }
 
         // vertex buffers
+
+        // creating the actual pipeline
+
+        let pipeline_layout_desc: PipelineLayoutDescriptor = PipelineLayoutDescriptor{
+            bind_group_layouts: &[&bind_group_layout],
+        }; // TODO allow for multiple bind group layouts
+        let pipeline_layout: PipelineLayout = context.device.create_pipeline_layout(
+            &pipeline_layout_desc);
+
+        let colour_blend: BlendDescriptor = BlendDescriptor {
+            src_factor: config.colour_blend.src_factor,
+            dst_factor: config.colour_blend.dst_factor,
+            operation: config.colour_blend.operation,
+        };
+        let alpha_blend: BlendDescriptor = BlendDescriptor {
+            src_factor: config.alpha_blend.src_factor,
+            dst_factor: config.alpha_blend.dst_factor,
+            operation: config.alpha_blend.operation,
+        };
+
+        let render_pipeline: RenderPipeline = context.device.create_render_pipeline(
+            &RenderPipelineDescriptor{
+                layout: &pipeline_layout,
+                vertex_stage: ProgrammableStageDescriptor{
+                    module: &config.vertex_shader.module,
+                    entry_point: config.vertex_shader.entry,
+                },
+                fragment_stage: Option::Some(ProgrammableStageDescriptor{
+                    module: &config.fragment_shader.module,
+                    entry_point: config.fragment_shader.entry,
+                }),
+                rasterization_state: Option::Some(RasterizationStateDescriptor {
+                    front_face: config.front_face,
+                    cull_mode: config.cull_mode,
+                    depth_bias: 0,
+                    depth_bias_slope_scale: 0.0,
+                    depth_bias_clamp: 0.0,
+                }),
+                primitive_topology: config.primitive_topology,
+                color_states: &[ColorStateDescriptor {
+                    format: TextureFormat::Bgra8UnormSrgb,
+                    color_blend: colour_blend,
+                    alpha_blend,
+                    write_mask: ColorWrite::ALL,
+                }],
+                depth_stencil_state: None,
+                index_format: config.index_format,
+                vertex_buffers: &[],
+                sample_count: 1,
+                sample_mask: !0,
+                alpha_to_coverage_enabled: false,
+            });
 
         // pipeline creation
         return AFRenderPipeline {

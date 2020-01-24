@@ -30,6 +30,8 @@ fn main() {
     let context_config: alfredgf::AFContextConfig = alfredgf::AFContextConfig {
         anisotropic_filtering: false,
         power_preference: PowerPreference::Default,
+        vsync: true,
+        size: [1280, 720],
     };
     let context: &alfredgf::AFContext = alfredgf::AFContext::new(&window, &context_config);
 

@@ -7,6 +7,7 @@ use wgpu::{
     RenderPipeline, RenderPipelineDescriptor, ProgrammableStageDescriptor, InputStepMode,
     VertexFormat, PipelineLayout, RasterizationStateDescriptor, ColorStateDescriptor, ColorWrite,
     SwapChain, SwapChainDescriptor, TextureUsage, TextureFormat, PresentMode,
+    VertexAttributeDescriptor,
 };
 
 use winit::{
@@ -384,6 +385,21 @@ impl AFRenderPipeline {
             operation: config.alpha_blend.operation,
         };
 
+        let vertex_buffer_descriptors: &[VertexBufferDescriptor] = config.vertex_buffer_slots.iter()
+            .map(|slot| {
+                VertexBufferDescriptor{
+                    stride: slot.stride,
+                    step_mode: slot.step_mode,
+                    attributes: slot.attribs.iter().map(|attrib|{
+                        VertexAttributeDescriptor{
+                            offset: attrib.offset,
+                            format: attrib.format,
+                            shader_location: attrib.location,
+                        }
+                    }),
+                }
+            }).collect::<Vec<_>>().as_slice();
+
         let render_pipeline: RenderPipeline = context.device.create_render_pipeline(
             &RenderPipelineDescriptor{
                 layout: &pipeline_layout,
@@ -411,7 +427,7 @@ impl AFRenderPipeline {
                 }],
                 depth_stencil_state: None,
                 index_format: config.index_format,
-                vertex_buffers: &[],
+                vertex_buffers: vertex_buffer_descriptors,
                 sample_count: 1,
                 sample_mask: !0,
                 alpha_to_coverage_enabled: false,

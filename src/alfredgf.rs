@@ -14,7 +14,7 @@ use winit::{
     dpi::PhysicalSize,
     event_loop::{EventLoop, ControlFlow},
     window::{Icon, Window, WindowBuilder},
-    event::{WindowEvent, Event, KeyboardInput},
+    event::{WindowEvent, Event, KeyboardInput, ElementState},
 };
 
 use std::collections::HashMap;
@@ -451,7 +451,7 @@ impl AFRenderPipeline {
     }
 }
 
-// taken from the mainloop closure
+// returned by the mainloop closure
 pub struct AFMainloop {
 
     //
@@ -463,14 +463,32 @@ pub struct AFMainloop {
 // sent that update the state
 pub struct AFMainloopState {
 
-    resized: Option<PhysicalSize<u32>>,
+    size: Option<PhysicalSize<u32>>,
     close_requested: bool,
     focused: bool,
-    file_hovered: Option<PathBuf>,
+    file_hovered: Option<Vec<PathBuf>>,
 
 }
 
-pub fn mainloop<F>(context: &'static AFContext, window: AFWindow,
+// sent to the mainloop closure in
+// a vector of others - represent
+// single events, NOT the general
+// state of the window
+pub enum AFMainloopInputEvent {
+
+    FileDropped(PathBuf),
+    KeyClicked(), // TODO add whatever represents the key into here
+
+}
+
+// mainloop state here
+
+static mut SIZE: Option<PhysicalSize<u32>> = None;
+static mut FOCUSED: bool = false;
+static mut FILE_HOVERED: Option<Vec<PathBuf>> = None;
+
+// mainloop function
+pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
                    pipelines: &[AFRenderPipeline], mainloop_function: F)
     where F: Fn() -> AFMainloop {
     let event_loop = window.event_loop;
@@ -512,6 +530,14 @@ pub fn mainloop<F>(context: &'static AFContext, window: AFWindow,
                     }
                     WindowEvent::KeyboardInput {device_id, input, is_synthetic} => {
                         // is_synthetic is windows exclusive
+                        match input.state {
+                            ElementState::Pressed => {
+                                //
+                            }
+                            ElementState::Released => {
+                                //
+                            }
+                        }
                     }
                     WindowEvent::MouseInput {device_id, state, button, modifiers} => {
                         //
@@ -546,7 +572,11 @@ pub fn mainloop<F>(context: &'static AFContext, window: AFWindow,
                     _ => {}
                 }
             }
+            Event::MainEventsCleared => {
+                under_window.request_redraw();
+            }
             Event::RedrawRequested(window_id) => {
+                let mainloop_data: AFMainloop = mainloop_function();
                 // draw here
             }
             Event::LoopDestroyed => {

@@ -14,11 +14,12 @@ use winit::{
     dpi::PhysicalSize,
     event_loop::{EventLoop, ControlFlow},
     window::{Icon, Window, WindowBuilder},
-    event::{WindowEvent, Event},
+    event::{WindowEvent, Event, KeyboardInput},
 };
 
 use std::collections::HashMap;
 use std::ops::Range;
+use std::path::PathBuf;
 
 pub struct AFImage<'a> {
     pub data: &'a [u8],
@@ -450,9 +451,22 @@ impl AFRenderPipeline {
     }
 }
 
+// taken from the mainloop closure
 pub struct AFMainloop {
 
     //
+
+}
+
+// sent to the mainloop closure each time called
+// represents the state of the window, NOT events
+// sent that update the state
+pub struct AFMainloopState {
+
+    resized: Option<PhysicalSize<u32>>,
+    close_requested: bool,
+    focused: bool,
+    file_hovered: Option<PathBuf>,
 
 }
 
@@ -468,11 +482,48 @@ pub fn mainloop<F>(context: &'static AFContext, window: AFWindow,
         match event {
             Event::WindowEvent {window_id, event} => {
                 match event {
+                    // some of these events are cached to maintain
+                    // a state of the window that is passed
+                    // to the mainloop closure;
+
+                    // others of these events are sent
+                    // as events to the mainloop closure because
+                    // they need to be noticed only once
                     WindowEvent::CloseRequested => {
-                        *control_flow = ControlFlow::Exit;
+                        //
+                    }
+                    WindowEvent::Resized(physical_size) => {
+                        //
+                    }
+                    WindowEvent::Focused(focused) => {
+                        //
+                    }
+                    WindowEvent::AxisMotion {device_id, axis, value} => {
+                        //
+                    }
+                    WindowEvent::DroppedFile(path_buffer) => {
+                        //
+                    }
+                    WindowEvent::HoveredFile(path_buffer) => {
+                        //
+                    }
+                    WindowEvent::HoveredFileCancelled => {
+                        //
+                    }
+                    WindowEvent::KeyboardInput {device_id, input, is_synthetic} => {
+                        //
+                    }
+                    WindowEvent::MouseInput {device_id, state, button, modifiers} => {
+                        //
                     }
                     _ => {}
                 }
+            }
+            Event::RedrawRequested(window_id) => {
+                // draw here
+            }
+            Event::LoopDestroyed => {
+                //
             }
             _ => {}
         }

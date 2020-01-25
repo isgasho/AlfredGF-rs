@@ -14,6 +14,7 @@ use winit::{
     dpi::PhysicalSize,
     event_loop::{EventLoop, ControlFlow},
     window::{Icon, Window, WindowBuilder},
+    event::{WindowEvent, Event},
 };
 
 use std::collections::HashMap;
@@ -463,5 +464,17 @@ pub fn mainloop<F>(context: &'static AFContext, window: AFWindow,
 
     event_loop.run(move |event, _, control_flow|{
         *control_flow = ControlFlow::Poll;
+
+        match event {
+            Event::WindowEvent {window_id, event} => {
+                match event {
+                    WindowEvent::CloseRequested => {
+                        *control_flow = ControlFlow::Exit;
+                    }
+                    _ => {}
+                }
+            }
+            _ => {}
+        }
     });
 }

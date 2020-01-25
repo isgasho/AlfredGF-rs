@@ -1,13 +1,13 @@
 use wgpu::{
     read_spirv, Adapter, BackendBit, BindGroup, BindGroupDescriptor, BindGroupLayout,
-    BindGroupLayoutBinding, BindGroupLayoutDescriptor, Binding, BindingType, Buffer, BufferUsage,
-    Device, DeviceDescriptor, Extensions, Limits, PipelineLayoutDescriptor, PowerPreference, Queue,
-    RequestAdapterOptions, ShaderModule, ShaderStage, Surface, BufferDescriptor, BindingResource,
-    PrimitiveTopology, FrontFace, CullMode, BlendDescriptor, IndexFormat, VertexBufferDescriptor,
-    RenderPipeline, RenderPipelineDescriptor, ProgrammableStageDescriptor, InputStepMode,
-    VertexFormat, PipelineLayout, RasterizationStateDescriptor, ColorStateDescriptor, ColorWrite,
-    SwapChain, SwapChainDescriptor, TextureUsage, TextureFormat, PresentMode,
-    VertexAttributeDescriptor,
+    BindGroupLayoutBinding, BindGroupLayoutDescriptor, Binding, BindingResource, BindingType,
+    BlendDescriptor, Buffer, BufferDescriptor, BufferUsage, ColorStateDescriptor, ColorWrite,
+    CullMode, Device, DeviceDescriptor, Extensions, FrontFace, IndexFormat, InputStepMode, Limits,
+    PipelineLayout, PipelineLayoutDescriptor, PowerPreference, PresentMode, PrimitiveTopology,
+    ProgrammableStageDescriptor, Queue, RasterizationStateDescriptor, RenderPipeline,
+    RenderPipelineDescriptor, RequestAdapterOptions, ShaderModule, ShaderStage, Surface, SwapChain,
+    SwapChainDescriptor, TextureFormat, TextureUsage, VertexAttributeDescriptor,
+    VertexBufferDescriptor, VertexFormat,
 };
 
 use winit::{
@@ -224,7 +224,7 @@ fn create_buffer(context: &AFContext, usage: BufferUsage, data: &[u8]) -> Buffer
 }
 
 fn create_empty_buffer(context: &AFContext, size: usize, usage: BufferUsage) -> Buffer {
-    let buffer: Buffer = context.device.create_buffer(&BufferDescriptor{
+    let buffer: Buffer = context.device.create_buffer(&BufferDescriptor {
         size: size as u64,
         usage,
     });
@@ -238,33 +238,27 @@ fn create_empty_buffer(context: &AFContext, size: usize, usage: BufferUsage) -> 
 // wgpu::CommandEncoder.copy_buffer_to_texture
 // wgpu::CommandEncoder.copy_texture_to_buffer
 
-pub struct AFUniform { // TODO add thing that can upload to uniforms
-
+pub struct AFUniform {
+    // TODO add thing that can upload to uniforms
     pub id: u32,
     pub stage: ShaderStage,
     pub dynamic: bool,
     pub byte_size: u64,
-
 }
 
-pub struct AFVertexSlot<'a> {
-
+pub struct AFVertexBufferSlot<'a> {
     pub stride: u64,
     pub step_mode: InputStepMode,
     pub attribs: &'a [&'a AFVertexAttrib],
-
 }
 
 pub struct AFVertexAttrib {
-
     pub location: u32,
     pub offset: u64,
     pub format: VertexFormat,
-
 }
 
 pub struct AFRenderPipelineConfig<'a> {
-
     // with bindgrouplayoutbinding, bindgrouplayout, bindingtype, and binding:
 
     // uniforms (TODO make modifiable later if dynamic and initializable with vals)
@@ -272,18 +266,14 @@ pub struct AFRenderPipelineConfig<'a> {
     // TODO sampled texture (is multisampled?)
     // TODO storage texture
     // TODO storage stuff (modify later if dynamic)
-
     pub uniforms: &'a [&'a AFUniform],
-
 
     // with vertexbufferdescriptor and vertexattributedescriptor:
 
     // vertex buffers (format, offset, stride, step_mode)
     // NOT the index buffer
     // NOT the actual buffers; will be given in mainloop
-
-    pub vertex_buffer_slots: &'a [&'a AFVertexSlot<'a>],
-
+    pub vertex_buffer_slots: &'a [&'a AFVertexBufferSlot<'a>],
 
     // other schtuff specified below
     pub vertex_shader: &'a AFShaderModule<'a>,
@@ -294,13 +284,10 @@ pub struct AFRenderPipelineConfig<'a> {
     pub cull_mode: CullMode,
     pub colour_blend: BlendDescriptor,
     pub alpha_blend: BlendDescriptor,
-
 }
 
 pub struct AFRenderPipeline {
-
     uniform_buffers: HashMap<u32, Buffer>,
-
 }
 
 // contains a hashmap of uniforms;
@@ -314,26 +301,30 @@ static mut temp_vertex_attribs: Option<Vec<VertexAttributeDescriptor>> = None;
 impl AFRenderPipeline {
     pub fn new(context: &AFContext, config: &AFRenderPipelineConfig) -> Self {
         // uniforms, samplers, and storages
-        
+
         // this is JUST for uniforms
-        let uniform_binding_layouts: Vec<BindGroupLayoutBinding> = config.uniforms.iter()
-            .map(|uniform| {
-                BindGroupLayoutBinding {
-                    binding: uniform.id,
-                    visibility: uniform.stage,
-                    ty: BindingType::UniformBuffer {
-                        dynamic: uniform.dynamic,
-                    },
-                }
-            }).collect::<Vec<_>>();
+        let uniform_binding_layouts: Vec<BindGroupLayoutBinding> = config
+            .uniforms
+            .iter()
+            .map(|uniform| BindGroupLayoutBinding {
+                binding: uniform.id,
+                visibility: uniform.stage,
+                ty: BindingType::UniformBuffer {
+                    dynamic: uniform.dynamic,
+                },
+            })
+            .collect::<Vec<_>>();
 
         // compiled from uniforms, samplers, and storages
         let binding_layouts: &[BindGroupLayoutBinding] = uniform_binding_layouts.as_slice();
 
-        let bind_group_layout = context.device.create_bind_group_layout(&BindGroupLayoutDescriptor{
-            bindings: binding_layouts,
-        });
-        
+        let bind_group_layout =
+            context
+                .device
+                .create_bind_group_layout(&BindGroupLayoutDescriptor {
+                    bindings: binding_layouts,
+                });
+
         // this is JUST for uniforms
         let mut real_uniform_map: HashMap<u32, Buffer> = HashMap::new();
         unsafe {
@@ -343,25 +334,44 @@ impl AFRenderPipeline {
                 }
                 Some(..) => {
                     //
-                },
+                }
             }
 
-            let uniform_bindings: Vec<Binding> = config.uniforms.iter().map(|uniform|{
-                temp_uniform_map.as_mut().unwrap().insert(
-                    uniform.id,
-                    create_empty_buffer(context, uniform.byte_size as usize, BufferUsage::UNIFORM));
-                Binding {
-                    binding: uniform.id,
-                    resource: BindingResource::Buffer {
-                        buffer: temp_uniform_map.as_ref().unwrap().get(&uniform.id.clone()).unwrap(),
-                        range: 0..uniform.byte_size,
+            let uniform_bindings: Vec<Binding> = config
+                .uniforms
+                .iter()
+                .map(|uniform| {
+                    temp_uniform_map.as_mut().unwrap().insert(
+                        uniform.id,
+                        create_empty_buffer(
+                            context,
+                            uniform.byte_size as usize,
+                            BufferUsage::UNIFORM,
+                        ),
+                    );
+                    Binding {
+                        binding: uniform.id,
+                        resource: BindingResource::Buffer {
+                            buffer: temp_uniform_map
+                                .as_ref()
+                                .unwrap()
+                                .get(&uniform.id.clone())
+                                .unwrap(),
+                            range: 0..uniform.byte_size,
+                        },
                     }
-                }
-            }).collect::<Vec<_>>();
+                })
+                .collect::<Vec<_>>();
 
             for uniform in config.uniforms {
                 real_uniform_map.insert(
-                    uniform.id, temp_uniform_map.as_mut().unwrap().remove(&uniform.id).unwrap());
+                    uniform.id,
+                    temp_uniform_map
+                        .as_mut()
+                        .unwrap()
+                        .remove(&uniform.id)
+                        .unwrap(),
+                );
             }
         }
 
@@ -369,11 +379,11 @@ impl AFRenderPipeline {
 
         // creating the actual pipeline
 
-        let pipeline_layout_desc: PipelineLayoutDescriptor = PipelineLayoutDescriptor{
+        let pipeline_layout_desc: PipelineLayoutDescriptor = PipelineLayoutDescriptor {
             bind_group_layouts: &[&bind_group_layout],
         }; // TODO allow for multiple bind group layouts
-        let pipeline_layout: PipelineLayout = context.device.create_pipeline_layout(
-            &pipeline_layout_desc);
+        let pipeline_layout: PipelineLayout =
+            context.device.create_pipeline_layout(&pipeline_layout_desc);
 
         let colour_blend: BlendDescriptor = BlendDescriptor {
             src_factor: config.colour_blend.src_factor,
@@ -386,59 +396,65 @@ impl AFRenderPipeline {
             operation: config.alpha_blend.operation,
         };
 
-        let vertex_buffer_descriptors: Vec<VertexBufferDescriptor> = config.vertex_buffer_slots.iter()
-            .map(|slot| {
-                unsafe {
-                    temp_vertex_attribs = Option::Some(slot.attribs.iter().map(|attrib|{
-                        VertexAttributeDescriptor{
+        let vertex_buffer_descriptors: Vec<VertexBufferDescriptor> = config
+            .vertex_buffer_slots
+            .iter()
+            .map(|slot| unsafe {
+                temp_vertex_attribs = Option::Some(
+                    slot.attribs
+                        .iter()
+                        .map(|attrib| VertexAttributeDescriptor {
                             offset: attrib.offset,
                             format: attrib.format,
                             shader_location: attrib.location,
-                        }
-                    }).collect::<Vec<_>>());
+                        })
+                        .collect::<Vec<_>>(),
+                );
 
-                    VertexBufferDescriptor{
-                        stride: slot.stride,
-                        step_mode: slot.step_mode,
-                        attributes: temp_vertex_attribs.as_mut().unwrap().as_slice(),
-                    }
+                VertexBufferDescriptor {
+                    stride: slot.stride,
+                    step_mode: slot.step_mode,
+                    attributes: temp_vertex_attribs.as_mut().unwrap().as_slice(),
                 }
-            }).collect::<Vec<_>>();
+            })
+            .collect::<Vec<_>>();
         let vertex_buffer_descriptors: &[VertexBufferDescriptor] =
             vertex_buffer_descriptors.as_slice();
 
-        let render_pipeline: RenderPipeline = context.device.create_render_pipeline(
-            &RenderPipelineDescriptor{
-                layout: &pipeline_layout,
-                vertex_stage: ProgrammableStageDescriptor{
-                    module: &config.vertex_shader.module,
-                    entry_point: config.vertex_shader.entry,
-                },
-                fragment_stage: Option::Some(ProgrammableStageDescriptor{
-                    module: &config.fragment_shader.module,
-                    entry_point: config.fragment_shader.entry,
-                }),
-                rasterization_state: Option::Some(RasterizationStateDescriptor {
-                    front_face: config.front_face,
-                    cull_mode: config.cull_mode,
-                    depth_bias: 0,
-                    depth_bias_slope_scale: 0.0,
-                    depth_bias_clamp: 0.0,
-                }),
-                primitive_topology: config.primitive_topology,
-                color_states: &[ColorStateDescriptor {
-                    format: TextureFormat::Bgra8UnormSrgb,
-                    color_blend: colour_blend,
-                    alpha_blend,
-                    write_mask: ColorWrite::ALL,
-                }],
-                depth_stencil_state: None,
-                index_format: config.index_format,
-                vertex_buffers: vertex_buffer_descriptors,
-                sample_count: 1,
-                sample_mask: !0,
-                alpha_to_coverage_enabled: false,
-            });
+        let render_pipeline: RenderPipeline =
+            context
+                .device
+                .create_render_pipeline(&RenderPipelineDescriptor {
+                    layout: &pipeline_layout,
+                    vertex_stage: ProgrammableStageDescriptor {
+                        module: &config.vertex_shader.module,
+                        entry_point: config.vertex_shader.entry,
+                    },
+                    fragment_stage: Option::Some(ProgrammableStageDescriptor {
+                        module: &config.fragment_shader.module,
+                        entry_point: config.fragment_shader.entry,
+                    }),
+                    rasterization_state: Option::Some(RasterizationStateDescriptor {
+                        front_face: config.front_face,
+                        cull_mode: config.cull_mode,
+                        depth_bias: 0,
+                        depth_bias_slope_scale: 0.0,
+                        depth_bias_clamp: 0.0,
+                    }),
+                    primitive_topology: config.primitive_topology,
+                    color_states: &[ColorStateDescriptor {
+                        format: TextureFormat::Bgra8UnormSrgb,
+                        color_blend: colour_blend,
+                        alpha_blend,
+                        write_mask: ColorWrite::ALL,
+                    }],
+                    depth_stencil_state: None,
+                    index_format: config.index_format,
+                    vertex_buffers: vertex_buffer_descriptors,
+                    sample_count: 1,
+                    sample_mask: !0,
+                    alpha_to_coverage_enabled: false,
+                });
 
         // pipeline creation
         return AFRenderPipeline {

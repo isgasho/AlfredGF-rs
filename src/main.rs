@@ -1,9 +1,9 @@
 mod alfredgf;
 
 use wgpu::{
-    BindGroupLayoutBinding, Binding, BindingResource, BindingType, Buffer, BufferUsage,
-    PowerPreference, ShaderStage, PrimitiveTopology, BlendDescriptor, IndexFormat,
-    VertexBufferDescriptor, InputStepMode, VertexAttributeDescriptor, FrontFace, CullMode,
+    BindGroupLayoutBinding, Binding, BindingResource, BindingType, BlendDescriptor, Buffer,
+    BufferUsage, CullMode, FrontFace, IndexFormat, InputStepMode, PowerPreference,
+    PrimitiveTopology, ShaderStage, VertexAttributeDescriptor, VertexBufferDescriptor,
     VertexFormat,
 };
 
@@ -46,18 +46,19 @@ fn main() {
         alfredgf::AFShaderModule::new_with_bytes(context, fragment_data, entry_point);
 
     // pipeline
-    let render_pipeline: alfredgf::AFRenderPipeline = alfredgf::AFRenderPipeline::new
-        (context, &alfredgf::AFRenderPipelineConfig{
+    let render_pipeline: alfredgf::AFRenderPipeline = alfredgf::AFRenderPipeline::new(
+        context,
+        &alfredgf::AFRenderPipelineConfig {
             uniforms: &[&alfredgf::AFUniform {
                 id: 0,
                 stage: ShaderStage::VERTEX,
                 dynamic: false,
                 byte_size: 4, // 4 byte float
             }],
-            vertex_buffer_slots: &[&alfredgf::AFVertexSlot{
+            vertex_buffer_slots: &[&alfredgf::AFVertexBufferSlot {
                 stride: 0,
                 step_mode: InputStepMode::Vertex,
-                attribs: &[&alfredgf::AFVertexAttrib{
+                attribs: &[&alfredgf::AFVertexAttrib {
                     location: 0,
                     offset: 0,
                     format: VertexFormat::Float4,
@@ -71,5 +72,6 @@ fn main() {
             cull_mode: CullMode::None,
             colour_blend: BlendDescriptor::REPLACE,
             alpha_blend: BlendDescriptor::REPLACE,
-        });
+        },
+    );
 }

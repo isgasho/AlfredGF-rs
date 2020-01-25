@@ -283,8 +283,8 @@ pub struct AFRenderPipeline {
 // the data copied into a new hashmap
 // for the purpose of circumventing issues with
 // reference lifetimes
-static mut temp_uniform_map: Option<HashMap<u32, Buffer>> = None;
-static mut temp_vertex_attribs: Option<Vec<VertexAttributeDescriptor>> = None;
+static mut TEMP_UNIFORM_MAP: Option<HashMap<u32, Buffer>> = None;
+static mut TEMP_VERTEX_ATTRIBS: Option<Vec<VertexAttributeDescriptor>> = None;
 
 impl AFRenderPipeline {
     pub fn new(context: &AFContext, config: &AFRenderPipelineConfig) -> Self {
@@ -316,9 +316,9 @@ impl AFRenderPipeline {
         // this is JUST for uniforms
         let mut real_uniform_map: HashMap<u32, Buffer> = HashMap::new();
         unsafe {
-            match temp_uniform_map {
+            match TEMP_UNIFORM_MAP {
                 None => {
-                    temp_uniform_map = Some(HashMap::new());
+                    TEMP_UNIFORM_MAP = Some(HashMap::new());
                 }
                 Some(..) => {
                     //
@@ -329,7 +329,7 @@ impl AFRenderPipeline {
                 .uniforms
                 .iter()
                 .map(|uniform| {
-                    temp_uniform_map.as_mut().unwrap().insert(
+                    TEMP_UNIFORM_MAP.as_mut().unwrap().insert(
                         uniform.id,
                         create_empty_buffer(
                             context,
@@ -340,7 +340,7 @@ impl AFRenderPipeline {
                     Binding {
                         binding: uniform.id,
                         resource: BindingResource::Buffer {
-                            buffer: temp_uniform_map
+                            buffer: TEMP_UNIFORM_MAP
                                 .as_ref()
                                 .unwrap()
                                 .get(&uniform.id.clone())
@@ -354,7 +354,7 @@ impl AFRenderPipeline {
             for uniform in config.uniforms {
                 real_uniform_map.insert(
                     uniform.id,
-                    temp_uniform_map
+                    TEMP_UNIFORM_MAP
                         .as_mut()
                         .unwrap()
                         .remove(&uniform.id)
@@ -388,7 +388,7 @@ impl AFRenderPipeline {
             .vertex_buffer_slots
             .iter()
             .map(|slot| unsafe {
-                temp_vertex_attribs = Option::Some(
+                TEMP_VERTEX_ATTRIBS = Option::Some(
                     slot.attribs
                         .iter()
                         .map(|attrib| VertexAttributeDescriptor {
@@ -402,7 +402,7 @@ impl AFRenderPipeline {
                 VertexBufferDescriptor {
                     stride: slot.stride,
                     step_mode: slot.step_mode,
-                    attributes: temp_vertex_attribs.as_mut().unwrap().as_slice(),
+                    attributes: TEMP_VERTEX_ATTRIBS.as_mut().unwrap().as_slice(),
                 }
             })
             .collect::<Vec<_>>();
@@ -511,9 +511,36 @@ pub fn mainloop<F>(context: &'static AFContext, window: AFWindow,
                         //
                     }
                     WindowEvent::KeyboardInput {device_id, input, is_synthetic} => {
-                        //
+                        // is_synthetic is windows exclusive
                     }
                     WindowEvent::MouseInput {device_id, state, button, modifiers} => {
+                        //
+                    }
+                    WindowEvent::Touch(touch) => {
+                        //
+                    }
+                    WindowEvent::TouchpadPressure {device_id, pressure, stage} => {
+                        //
+                    }
+                    WindowEvent::MouseWheel {device_id, delta, phase, modifiers} => {
+                        //
+                    }
+                    WindowEvent::Moved(physical_position) => {
+                        //
+                    }
+                    WindowEvent::ThemeChanged(theme) => { // windows exclusive
+                        //
+                    }
+                    WindowEvent::ScaleFactorChanged {scale_factor, new_inner_size} => {
+                        //
+                    }
+                    WindowEvent::CursorEntered {device_id} => {
+                        //
+                    }
+                    WindowEvent::CursorMoved {device_id, position, modifiers} => {
+                        //
+                    }
+                    WindowEvent::CursorLeft {device_id} => {
                         //
                     }
                     _ => {}

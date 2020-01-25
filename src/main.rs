@@ -25,7 +25,7 @@ fn main() {
         always_on_top: false,
         maximized: false,
     };
-    let window: &alfredgf::AFWindow = alfredgf::AFWindow::new(&window_config);
+    let window: alfredgf::AFWindow = alfredgf::AFWindow::new(&window_config);
 
     // context
     let context_config: alfredgf::AFContextConfig = alfredgf::AFContextConfig {
@@ -74,4 +74,10 @@ fn main() {
             alpha_blend: BlendDescriptor::REPLACE,
         },
     );
+
+    alfredgf::mainloop(context, window, ||{
+        alfredgf::AFMainloop{
+            //
+        }
+    });
 }

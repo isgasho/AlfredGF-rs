@@ -12,7 +12,7 @@ use wgpu::{
 
 use winit::{
     dpi::PhysicalSize,
-    event_loop::EventLoop,
+    event_loop::{EventLoop, ControlFlow},
     window::{Icon, Window, WindowBuilder},
 };
 
@@ -42,52 +42,38 @@ pub struct AFWindow {
     window: Window,
 }
 
-static mut CURRENT_WINDOW: Option<AFWindow> = None;
-
 impl AFWindow {
-    pub fn new<'a>(config: &AFWindowConfig) -> &'a Self {
-        return unsafe {
-            match &CURRENT_WINDOW {
-                None => {
-                    let builder: WindowBuilder = WindowBuilder::new()
-                        .with_window_icon(
-                            Icon::from_rgba(
-                                config.icon.data.to_vec(),
-                                config.icon.width,
-                                config.icon.height,
-                            )
-                            .ok(),
-                        )
-                        .with_min_inner_size(PhysicalSize::new(
-                            config.min_size[0],
-                            config.min_size[1],
-                        ))
-                        .with_max_inner_size(PhysicalSize::new(
-                            config.max_size[0],
-                            config.max_size[1],
-                        ))
-                        .with_inner_size(PhysicalSize::new(
-                            config.start_size[0],
-                            config.start_size[1],
-                        ))
-                        .with_title(config.title)
-                        .with_resizable(config.resizeable)
-                        .with_always_on_top(config.always_on_top)
-                        .with_maximized(config.maximized);
+    pub fn new<'a>(config: &AFWindowConfig) -> Self {
+        let builder: WindowBuilder = WindowBuilder::new()
+            .with_window_icon(
+                Icon::from_rgba(
+                    config.icon.data.to_vec(),
+                    config.icon.width,
+                    config.icon.height,
+                )
+                    .ok(),
+            )
+            .with_min_inner_size(PhysicalSize::new(
+                config.min_size[0],
+                config.min_size[1],
+            ))
+            .with_max_inner_size(PhysicalSize::new(
+                config.max_size[0],
+                config.max_size[1],
+            ))
+            .with_inner_size(PhysicalSize::new(
+                config.start_size[0],
+                config.start_size[1],
+            ))
+            .with_title(config.title)
+            .with_resizable(config.resizeable)
+            .with_always_on_top(config.always_on_top)
+            .with_maximized(config.maximized);
 
-                    let event_loop: EventLoop<()> = EventLoop::new();
-                    let window = builder.build(&event_loop).unwrap();
-                    let t_w = Option::Some(AFWindow { window, event_loop });
+        let event_loop: EventLoop<()> = EventLoop::new();
+        let window = builder.build(&event_loop).unwrap();
 
-                    CURRENT_WINDOW = t_w;
-                }
-                Some(afwindow) => {
-                    // nothing... there's already a window
-                }
-            };
-
-            CURRENT_WINDOW.as_ref().unwrap()
-        };
+        return AFWindow{event_loop, window};
     }
 }
 
@@ -463,135 +449,18 @@ impl AFRenderPipeline {
     }
 }
 
-//static mut v_bs: Option<HashMap<u32, Buffer>> = None;
-//
-//impl AFBindGroup {
-//    // TODO rewrite this so it takes in an AFBinding
-//    // TODO also update the specs later
-//    // TODO create a buffer in here and save it in a hashmap; let them be initialized?
-//    pub fn new(context: &AFContext, af_bindings: &[AFBinding]) -> Self {
-//        unsafe {
-//            v_bs = Option::Some(HashMap::new());
-//        }
-//        let mut shader_ids: Vec<u32> = Vec::new();
-//        let binding_layouts: Vec<BindGroupLayoutBinding> = af_bindings
-//            .iter()
-//            .map(|af_binding: &AFBinding| {
-//                shader_ids.push(af_binding.id);
-//                BindGroupLayoutBinding {
-//                    binding: af_binding.id,
-//                    visibility: af_binding.visibility,
-//                    ty: match af_binding.binding {
-//                        AFBindingType::Buffer {
-//                            dynamic, readonly, ..
-//                        } => BindingType::StorageBuffer { dynamic, readonly },
-//                    },
-//                }
-//            })
-//            .collect::<Vec<_>>();
-//        let binding_layouts = binding_layouts.as_slice();
-//
-//        let layout: BindGroupLayout =
-//            context
-//                .device
-//                .create_bind_group_layout(&BindGroupLayoutDescriptor {
-//                    bindings: binding_layouts,
-//                });
-//
-//        // TODO find out if bindings are actually necessary and when exactly
-//        let bindings: Vec<Binding> = af_bindings.iter().map(|af_binding: &AFBinding| {
-//            match af_binding.binding {
-//                AFBindingType::Buffer { size, dynamic, readonly } => {
-//                    unsafe {
-//                        v_bs.as_mut().unwrap().insert(af_binding.id,
-//                                             create_empty_buffer(context, size, BufferUsage::STORAGE));
-//                        // NOTE THAT THE BUFFER USAGE IS SPECIFIED WHEN MAKING A VERTEX BUFFER TO PASS, NOT HERE
-//                        Binding {
-//                            binding: 0,
-//                            resource: BindingResource::Buffer{
-//                                buffer: v_bs.as_mut().unwrap().get(&af_binding.id).unwrap(),
-//                                range: 0..size as u64,
-//                            },
-//                        }
-//                    }
-//                }
-//            }
-//        }).collect::<Vec<_>>();
-//        let bindings: &[Binding] = bindings.as_slice();
-//
-//        let bind_group = context.device.create_bind_group(&BindGroupDescriptor {
-//            layout: &layout,
-//            bindings,
-//        });
-//
-//        let mut n_m: HashMap<u32, Buffer> = HashMap::new();
-//
-//        unsafe {
-//            for i in shader_ids.iter() {
-//                let b = v_bs.as_mut().unwrap().remove(&i).unwrap();
-//                n_m.insert(*i, b);
-//            }
-//        }
-//
-//        return AFBindGroup {
-//            layout,
-//            bind_group,
-//            //index_buffer: None,
-//            vertex_buffers: n_m,
-//        };
-//    }
-//}
-//
-//pub struct AFRenderPipelineConfig<'a> {
-//
-//    pub bind_groups: &'a [&'a AFBindGroup],
-//    pub vertex_shader: &'a AFShaderModule<'a>,
-//    pub fragment_shader: &'a AFShaderModule<'a>,
-//    pub primitive_topology: PrimitiveTopology,
-//    pub front_face: FrontFace,
-//    pub cull_mode: CullMode,
-//    pub colour_blend: BlendDescriptor,
-//    pub alpha_blend: BlendDescriptor,
-//    pub index_format: IndexFormat,
-//    pub vertex_buffers: &'a [&'a VertexBufferDescriptor<'a>],
-//
-//}
-//
-//pub struct AFRenderPipeline {
-//
-//    //
-//
-//}
-//
-//impl AFRenderPipeline {
-//    pub fn new(context: &AFContext, config: &AFRenderPipelineConfig) -> Self {
-//        let render_pipeline: RenderPipeline = context.device.create_render_pipeline(
-//            &RenderPipelineDescriptor{
-//                layout: &context.device.create_pipeline_layout(&PipelineLayoutDescriptor{
-//                    bind_group_layouts: config.bind_groups.iter().map(|bind_group|{
-//                        &bind_group.layout
-//                    }).collect::<Vec<_>>().as_slice(),
-//                }),
-//                vertex_stage: ProgrammableStageDescriptor{
-//                    module: &config.vertex_shader.module,
-//                    entry_point: config.vertex_shader.entry,
-//                },
-//                fragment_stage: Option::Some(ProgrammableStageDescriptor{
-//                    module: &config.fragment_shader.module,
-//                    entry_point: config.fragment_shader.entry,
-//                }),
-//                rasterization_state: None,
-//                primitive_topology: config.primitive_topology,
-//                color_states: [],
-//                depth_stencil_state: None,
-//                index_format: (),
-//                vertex_buffers: [],
-//                sample_count: 0,
-//                sample_mask: 0,
-//                alpha_to_coverage_enabled: false,
-//            });
-//        return AFRenderPipeline{
-//            //
-//        };
-//    }
-//}
+pub struct AFMainloop {
+
+    //
+
+}
+
+pub fn mainloop<F>(context: &AFContext, window: AFWindow, mainloop_function: F)
+    where F: Fn() -> AFMainloop {
+    let event_loop = window.event_loop;
+    let under_window = window.window;
+
+    event_loop.run(move |event, _, control_flow|{
+        *control_flow = ControlFlow::Poll;
+    });
+}

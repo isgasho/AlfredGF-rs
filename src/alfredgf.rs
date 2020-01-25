@@ -249,7 +249,7 @@ pub struct AFUniform { // TODO add thing that can upload to uniforms
 
 pub struct AFVertexSlot<'a> {
 
-    pub stride: u32,
+    pub stride: u64,
     pub step_mode: InputStepMode,
     pub attribs: &'a [&'a AFVertexAttrib],
 
@@ -309,6 +309,7 @@ pub struct AFRenderPipeline {
 // for the purpose of circumventing issues with
 // reference lifetimes
 static mut temp_uniform_map: Option<HashMap<u32, Buffer>> = None;
+static mut temp_vertex_attribs: Option<Vec<VertexAttributeDescriptor>> = None;
 
 impl AFRenderPipeline {
     pub fn new(context: &AFContext, config: &AFRenderPipelineConfig) -> Self {
@@ -385,20 +386,26 @@ impl AFRenderPipeline {
             operation: config.alpha_blend.operation,
         };
 
-        let vertex_buffer_descriptors: &[VertexBufferDescriptor] = config.vertex_buffer_slots.iter()
+        let vertex_buffer_descriptors: Vec<VertexBufferDescriptor> = config.vertex_buffer_slots.iter()
             .map(|slot| {
-                VertexBufferDescriptor{
-                    stride: slot.stride,
-                    step_mode: slot.step_mode,
-                    attributes: slot.attribs.iter().map(|attrib|{
+                unsafe {
+                    temp_vertex_attribs = Option::Some(slot.attribs.iter().map(|attrib|{
                         VertexAttributeDescriptor{
                             offset: attrib.offset,
                             format: attrib.format,
                             shader_location: attrib.location,
                         }
-                    }),
+                    }).collect::<Vec<_>>());
+
+                    VertexBufferDescriptor{
+                        stride: slot.stride,
+                        step_mode: slot.step_mode,
+                        attributes: temp_vertex_attribs.as_mut().unwrap().as_slice(),
+                    }
                 }
-            }).collect::<Vec<_>>().as_slice();
+            }).collect::<Vec<_>>();
+        let vertex_buffer_descriptors: &[VertexBufferDescriptor] =
+            vertex_buffer_descriptors.as_slice();
 
         let render_pipeline: RenderPipeline = context.device.create_render_pipeline(
             &RenderPipelineDescriptor{

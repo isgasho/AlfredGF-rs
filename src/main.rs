@@ -75,7 +75,7 @@ fn main() {
         },
     );
 
-    alfredgf::mainloop(context, window, ||{
+    alfredgf::mainloop(context, window, &[render_pipeline], ||{
         alfredgf::AFMainloop{
             //
         }

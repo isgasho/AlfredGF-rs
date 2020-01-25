@@ -455,7 +455,8 @@ pub struct AFMainloop {
 
 }
 
-pub fn mainloop<F>(context: &AFContext, window: AFWindow, mainloop_function: F)
+pub fn mainloop<F>(context: &'static AFContext, window: AFWindow,
+                   pipelines: &[AFRenderPipeline], mainloop_function: F)
     where F: Fn() -> AFMainloop {
     let event_loop = window.event_loop;
     let under_window = window.window;

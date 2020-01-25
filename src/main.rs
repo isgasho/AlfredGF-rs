@@ -4,6 +4,7 @@ use wgpu::{
     BindGroupLayoutBinding, Binding, BindingResource, BindingType, Buffer, BufferUsage,
     PowerPreference, ShaderStage, PrimitiveTopology, BlendDescriptor, IndexFormat,
     VertexBufferDescriptor, InputStepMode, VertexAttributeDescriptor, FrontFace, CullMode,
+    VertexFormat,
 };
 
 fn main() {
@@ -53,7 +54,15 @@ fn main() {
                 dynamic: false,
                 byte_size: 4, // 4 byte float
             }],
-            vertex_buffer_slots: &[],
+            vertex_buffer_slots: &[&alfredgf::AFVertexSlot{
+                stride: 0,
+                step_mode: InputStepMode::Vertex,
+                attribs: &[&alfredgf::AFVertexAttrib{
+                    location: 0,
+                    offset: 0,
+                    format: VertexFormat::Float4,
+                }],
+            }],
             vertex_shader: &v_s,
             fragment_shader: &f_s,
             index_format: IndexFormat::Uint16,

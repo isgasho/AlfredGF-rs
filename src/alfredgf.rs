@@ -14,9 +14,10 @@ use winit::{
     dpi::PhysicalSize,
     event_loop::{EventLoop, ControlFlow},
     window::{Icon, Window, WindowBuilder},
-    event::{WindowEvent, Event, KeyboardInput, ElementState},
+    event::{WindowEvent, Event, KeyboardInput, ElementState, VirtualKeyCode},
 };
 
+use std::time::SystemTime;
 use std::collections::HashMap;
 use std::ops::Range;
 use std::path::PathBuf;
@@ -499,6 +500,10 @@ pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
     unsafe {
         SIZE = Option::Some(window.inner_size());
     }
+
+    let last: SystemTime;
+
+    let mut then = SystemTime::now();
 
     event_loop.run(move |event, _, control_flow|{
         *control_flow = ControlFlow::Poll;

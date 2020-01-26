@@ -7,7 +7,8 @@ use wgpu::{
     ProgrammableStageDescriptor, Queue, RasterizationStateDescriptor, RenderPipeline,
     RenderPipelineDescriptor, RequestAdapterOptions, ShaderModule, ShaderStage, Surface, SwapChain,
     SwapChainDescriptor, TextureFormat, TextureUsage, VertexAttributeDescriptor,
-    VertexBufferDescriptor, VertexFormat,
+    VertexBufferDescriptor, VertexFormat, CommandEncoder, CommandEncoderDescriptor, CommandBuffer,
+    RenderPassDescriptor, RenderPass, RenderPassColorAttachmentDescriptor,
 };
 
 use winit::{
@@ -92,7 +93,7 @@ pub struct AFContext {
     surface: Surface,
     device: Device,
     queue: Queue,
-    swap_chain: SwapChain,
+    present_mode: PresentMode,
 }
 
 static mut CURRENT_CONTEXT: Option<AFContext> = None;
@@ -123,24 +124,12 @@ impl AFContext {
                         false => PresentMode::NoVsync,
                     };
 
-                    let size = PhysicalSize::new(config.size[0], config.size[1]);
-                    let swap_chain: SwapChain = device.create_swap_chain(
-                        &surface,
-                        &SwapChainDescriptor {
-                            usage: TextureUsage::OUTPUT_ATTACHMENT,
-                            format: TextureFormat::Bgra8UnormSrgb,
-                            width: size.width as u32,
-                            height: size.height as u32,
-                            present_mode,
-                        },
-                    );
-
                     CURRENT_CONTEXT = Option::Some(AFContext {
                         size,
                         surface,
                         device,
                         queue,
-                        swap_chain,
+                        present_mode,
                     });
                 }
                 Some(afcontext) => {
@@ -456,6 +445,7 @@ impl AFRenderPipeline {
 pub struct AFMainloop {
 
     pub destroy: bool,
+    pub update_surface: bool,
 
 }
 
@@ -468,6 +458,7 @@ pub struct AFMainloopState {
     pub close_requested: bool,
     pub focused: bool,
     pub file_hovered: Vec<PathBuf>,
+    pub was_resized: bool,
     pub events: Vec<AFMainloopInputEvent>,
 
 }
@@ -488,6 +479,7 @@ pub enum AFMainloopInputEvent {
 static mut SIZE: Option<PhysicalSize<u32>> = None;
 static mut FOCUSED: bool = false;
 static mut CLOSE_REQUESTED: bool = false;
+static mut WAS_RESIZED: bool = false;
 static mut FILE_HOVERED: Option<Vec<PathBuf>> = None;
 static mut DROPPED_FILE: Option<Vec<PathBuf>> = None;
 
@@ -497,6 +489,16 @@ pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
     where F: Fn(AFMainloopState) -> AFMainloop {
     let event_loop = window.event_loop;
     let window = window.window;
+
+    let mut surface = wgpu::Surface::create(&window);
+    let mut swap_chain: SwapChain =
+        context.device.create_swap_chain(&surface, &SwapChainDescriptor{
+            usage: TextureUsage::OUTPUT_ATTACHMENT,
+            format: TextureFormat::Bgra8UnormSrgb,
+            width: window.inner_size().width,
+            height: window.inner_size().height,
+            present_mode: context.present_mode,
+        });
 
     unsafe {
         SIZE = Option::Some(window.inner_size());
@@ -526,6 +528,7 @@ pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
                     }
                     WindowEvent::Resized(physical_size) => unsafe {
                         SIZE = Option::Some(physical_size);
+                        WAS_RESIZED = true;
                     }
                     WindowEvent::Focused(focused) => unsafe {
                         FOCUSED = focused;
@@ -604,10 +607,12 @@ pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
                     focused: unsafe {FOCUSED},
                     file_hovered: unsafe {FILE_HOVERED.as_mut().unwrap().clone()},
                     events: dropped_files,
+                    was_resized: unsafe {WAS_RESIZED},
                 });
 
                 unsafe {
                     DROPPED_FILE = Option::Some(Vec::new());
+                    WAS_RESIZED = false;
                 };
 
                 match mainloop_data.destroy {
@@ -616,7 +621,42 @@ pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
                     }
                     _ => {}
                 }
+
+                match mainloop_data.update_surface {
+                    true => {
+                        surface = wgpu::Surface::create(&window);
+                        swap_chain = context.device.create_swap_chain(&surface, &SwapChainDescriptor{
+                            usage: TextureUsage::OUTPUT_ATTACHMENT,
+                            format: TextureFormat::Bgra8UnormSrgb,
+                            width: window.inner_size().width,
+                            height: window.inner_size().height,
+                            present_mode: context.present_mode,
+                        });
+                    }
+                    _ => {}
+                }
+
                 // draw here
+
+                let mut command_encoder: CommandEncoder = context.device.create_command_encoder(
+                    &CommandEncoderDescriptor {
+                        todo: 0,
+                    });
+
+                {
+//                    let mut render_pass = command_encoder.begin_render_pass(&RenderPassDescriptor{
+//                        color_attachments: &[RenderPassColorAttachmentDescriptor{
+//                            attachment: (),
+//                            resolve_target: None,
+//                            load_op: (),
+//                            store_op: (),
+//                            clear_color: (),
+//                        }],
+//                        depth_stencil_attachment: None,
+//                    });
+                }
+
+                let command_buffer: CommandBuffer = command_encoder.finish();
             }
             Event::LoopDestroyed => {
                 //

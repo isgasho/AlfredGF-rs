@@ -78,6 +78,7 @@ fn main() {
     alfredgf::mainloop(context, window, &[render_pipeline], |state|{
         alfredgf::AFMainloop{
             destroy: state.close_requested,
+            update_surface: state.was_resized,
         }
     });
 }

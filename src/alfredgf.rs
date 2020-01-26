@@ -489,6 +489,7 @@ static mut SIZE: Option<PhysicalSize<u32>> = None;
 static mut FOCUSED: bool = false;
 static mut CLOSE_REQUESTED: bool = false;
 static mut FILE_HOVERED: Option<Vec<PathBuf>> = None;
+static mut DROPPED_FILE: Option<Vec<PathBuf>> = None;
 
 // mainloop function
 pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
@@ -499,6 +500,8 @@ pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
 
     unsafe {
         SIZE = Option::Some(window.inner_size());
+        FILE_HOVERED = Option::Some(Vec::new());
+        DROPPED_FILE = Option::Some(Vec::new());
     }
 
     let last: SystemTime;
@@ -530,14 +533,15 @@ pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
                     WindowEvent::AxisMotion {device_id, axis, value} => {
                         //
                     }
-                    WindowEvent::DroppedFile(path_buffer) => {
-                        //
+                    WindowEvent::DroppedFile(path_buffer) => unsafe {
+                        FILE_HOVERED = Option::Some(Vec::new());
+                        DROPPED_FILE.as_mut().unwrap().push(path_buffer);
                     }
-                    WindowEvent::HoveredFile(path_buffer) => {
-                        //
+                    WindowEvent::HoveredFile(path_buffer) => unsafe {
+                        FILE_HOVERED.as_mut().unwrap().push(path_buffer);
                     }
-                    WindowEvent::HoveredFileCancelled => {
-                        //
+                    WindowEvent::HoveredFileCancelled => unsafe {
+                        FILE_HOVERED = Option::Some(Vec::new());
                     }
                     WindowEvent::KeyboardInput {device_id, input, is_synthetic} => {
                         // is_synthetic is windows exclusive
@@ -587,13 +591,24 @@ pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
                 window.request_redraw();
             }
             Event::RedrawRequested(window_id) => {
+                let dropped_files: Vec<AFMainloopInputEvent> =
+                    unsafe {
+                        DROPPED_FILE.as_mut().unwrap().clone().iter().map(|path_buf|{
+                            AFMainloopInputEvent::FileDropped(path_buf.clone())
+                        }).collect::<Vec<_>>()
+                    };
+
                 let mainloop_data: AFMainloop = mainloop_function(AFMainloopState{
                     size: unsafe {SIZE.unwrap()},
                     close_requested: unsafe {CLOSE_REQUESTED},
                     focused: unsafe {FOCUSED},
-                    file_hovered: Vec::new(),
-                    events: Vec::new(),
+                    file_hovered: unsafe {FILE_HOVERED.as_mut().unwrap().clone()},
+                    events: dropped_files,
                 });
+
+                unsafe {
+                    DROPPED_FILE = Option::Some(Vec::new());
+                };
 
                 match mainloop_data.destroy {
                     true => {

@@ -75,9 +75,9 @@ fn main() {
         },
     );
 
-    alfredgf::mainloop(context, window, &[render_pipeline], ||{
+    alfredgf::mainloop(context, window, &[render_pipeline], |state|{
         alfredgf::AFMainloop{
-            //
+            destroy: state.close_requested,
         }
     });
 }

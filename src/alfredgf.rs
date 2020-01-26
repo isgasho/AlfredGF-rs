@@ -454,7 +454,7 @@ impl AFRenderPipeline {
 // returned by the mainloop closure
 pub struct AFMainloop {
 
-    //
+    pub destroy: bool,
 
 }
 
@@ -463,10 +463,11 @@ pub struct AFMainloop {
 // sent that update the state
 pub struct AFMainloopState {
 
-    size: Option<PhysicalSize<u32>>,
-    close_requested: bool,
-    focused: bool,
-    file_hovered: Option<Vec<PathBuf>>,
+    pub size: PhysicalSize<u32>,
+    pub close_requested: bool,
+    pub focused: bool,
+    pub file_hovered: Vec<PathBuf>,
+    pub events: Vec<AFMainloopInputEvent>,
 
 }
 
@@ -485,14 +486,19 @@ pub enum AFMainloopInputEvent {
 
 static mut SIZE: Option<PhysicalSize<u32>> = None;
 static mut FOCUSED: bool = false;
+static mut CLOSE_REQUESTED: bool = false;
 static mut FILE_HOVERED: Option<Vec<PathBuf>> = None;
 
 // mainloop function
 pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
                    pipelines: &[AFRenderPipeline], mainloop_function: F)
-    where F: Fn() -> AFMainloop {
+    where F: Fn(AFMainloopState) -> AFMainloop {
     let event_loop = window.event_loop;
-    let under_window = window.window;
+    let window = window.window;
+
+    unsafe {
+        SIZE = Option::Some(window.inner_size());
+    }
 
     event_loop.run(move |event, _, control_flow|{
         *control_flow = ControlFlow::Poll;
@@ -507,14 +513,14 @@ pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
                     // others of these events are sent
                     // as events to the mainloop closure because
                     // they need to be noticed only once
-                    WindowEvent::CloseRequested => {
-                        //
+                    WindowEvent::CloseRequested => unsafe {
+                        CLOSE_REQUESTED = true;
                     }
-                    WindowEvent::Resized(physical_size) => {
-                        //
+                    WindowEvent::Resized(physical_size) => unsafe {
+                        SIZE = Option::Some(physical_size);
                     }
-                    WindowEvent::Focused(focused) => {
-                        //
+                    WindowEvent::Focused(focused) => unsafe {
+                        FOCUSED = focused;
                     }
                     WindowEvent::AxisMotion {device_id, axis, value} => {
                         //
@@ -573,10 +579,23 @@ pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
                 }
             }
             Event::MainEventsCleared => {
-                under_window.request_redraw();
+                window.request_redraw();
             }
             Event::RedrawRequested(window_id) => {
-                let mainloop_data: AFMainloop = mainloop_function();
+                let mainloop_data: AFMainloop = mainloop_function(AFMainloopState{
+                    size: unsafe {SIZE.unwrap()},
+                    close_requested: unsafe {CLOSE_REQUESTED},
+                    focused: unsafe {FOCUSED},
+                    file_hovered: Vec::new(),
+                    events: Vec::new(),
+                });
+
+                match mainloop_data.destroy {
+                    true => {
+                        *control_flow = ControlFlow::Exit;
+                    }
+                    _ => {}
+                }
                 // draw here
             }
             Event::LoopDestroyed => {

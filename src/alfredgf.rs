@@ -18,7 +18,6 @@ use winit::{
     event::{WindowEvent, Event, KeyboardInput, ElementState, VirtualKeyCode},
 };
 
-use std::time::SystemTime;
 use std::collections::HashMap;
 use std::ops::Range;
 use std::path::PathBuf;
@@ -86,6 +85,7 @@ pub struct AFContextConfig {
     pub power_preference: PowerPreference,
     pub vsync: bool,
     pub size: [u32; 2],
+    pub backend_bit: BackendBit,
 }
 
 pub struct AFContext {
@@ -107,7 +107,7 @@ impl AFContext {
                     let surface: Surface = Surface::create(&window.window);
                     let adapter: Adapter = Adapter::request(&RequestAdapterOptions {
                         power_preference: config.power_preference,
-                        backends: BackendBit::PRIMARY, // defaults to Vulkan / Metal
+                        backends: config.backend_bit,
                     })
                     .unwrap();
 
@@ -447,19 +447,22 @@ pub struct AFMainloopComputeCommand {
 
 }
 
-pub enum AFMainloopRenderType<'a> {
+pub enum AFMainloopRenderCommandData<'a> {
 
-    Empty {vertices: u32, calls: u32},
-    Vertex {vertices: u32, calls: u32, vertex_buffers: &'a [u8]},
-    Index {indices: u32, calls: u32, vertex_buffers: &'a [u8], index_buffer: &'a [u8]},
+    Empty,
+    Vertex {vertex_buffers: &'a [&'a [u8]]},
+    Index {vertex_buffers: &'a [&'a [u8]], index_buffer: &'a [u8]},
 
 }
 
-pub struct AFMainloopRenderCommand {
+pub struct AFMainloopRenderCommand<'a> {
 
     pub pipeline_index: usize,
     pub enabled_bind_groups: Range<usize>,
     pub clear_colour: [f64; 4],
+    pub vertex_count: u32,
+    pub calls: u32,
+    pub render: AFMainloopRenderCommandData<'a>,
 
 }
 

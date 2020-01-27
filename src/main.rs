@@ -4,7 +4,7 @@ use wgpu::{
     BindGroupLayoutBinding, Binding, BindingResource, BindingType, BlendDescriptor, Buffer,
     BufferUsage, CullMode, FrontFace, IndexFormat, InputStepMode, PowerPreference,
     PrimitiveTopology, ShaderStage, VertexAttributeDescriptor, VertexBufferDescriptor,
-    VertexFormat,
+    VertexFormat, BackendBit,
 };
 
 fn main() {
@@ -33,6 +33,7 @@ fn main() {
         power_preference: PowerPreference::Default,
         vsync: true,
         size: [1280, 720],
+        backend_bit: BackendBit::METAL | BackendBit::VULKAN,
     };
     let context: &mut alfredgf::AFContext = alfredgf::AFContext::new(&window, &context_config);
 

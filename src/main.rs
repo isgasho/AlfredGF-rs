@@ -34,7 +34,7 @@ fn main() {
         vsync: true,
         size: [1280, 720],
     };
-    let context: &alfredgf::AFContext = alfredgf::AFContext::new(&window, &context_config);
+    let context: &mut alfredgf::AFContext = alfredgf::AFContext::new(&window, &context_config);
 
     // shaders
     let vertex_data = include_bytes!("shader.vert.spv");

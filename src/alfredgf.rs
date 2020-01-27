@@ -99,7 +99,7 @@ pub struct AFContext {
 static mut CURRENT_CONTEXT: Option<AFContext> = None;
 
 impl AFContext {
-    pub fn new<'a>(window: &AFWindow, config: &AFContextConfig) -> &'a Self {
+    pub fn new<'a>(window: &AFWindow, config: &AFContextConfig) -> &'a mut Self {
         return unsafe {
             match &CURRENT_CONTEXT {
                 None => {
@@ -137,7 +137,7 @@ impl AFContext {
                 }
             }
 
-            CURRENT_CONTEXT.as_ref().unwrap()
+            CURRENT_CONTEXT.as_mut().unwrap()
         };
     }
 }
@@ -488,7 +488,7 @@ static mut DOWN_KEYS: Option<Vec<VirtualKeyCode>> = None;
 static mut CLICKED_KEYS: Option<Vec<VirtualKeyCode>> = None;
 
 // mainloop function
-pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
+pub fn mainloop<F: 'static>(context: &'static mut AFContext, window: AFWindow,
                    pipelines: &[AFRenderPipeline], mainloop_function: F)
     where F: Fn(AFMainloopState) -> AFMainloop {
     let event_loop = window.event_loop;
@@ -668,6 +668,7 @@ pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
                 }
 
                 let command_buffer: CommandBuffer = command_encoder.finish();
+                context.queue.submit(&[command_buffer]);
             }
             Event::LoopDestroyed => {
                 //

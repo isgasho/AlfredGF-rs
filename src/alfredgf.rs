@@ -685,7 +685,8 @@ pub fn mainloop<F: 'static, K: 'static>(context: &'static mut AFContext, window:
                         i += 1;
                     };
 
-                });
+                    ()
+                }).collect::<Vec<_>>();
 
                 let command_buffer: CommandBuffer = command_encoder.finish();
                 context.queue.submit(&[command_buffer]);

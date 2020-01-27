@@ -80,5 +80,7 @@ fn main() {
             destroy: state.close_requested,
             update_surface: state.was_resized,
         }
+    }, ||{
+        //
     });
 }

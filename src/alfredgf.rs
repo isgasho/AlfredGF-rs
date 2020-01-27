@@ -441,6 +441,28 @@ impl AFRenderPipeline {
     }
 }
 
+pub struct AFMainloopComputeCommand {
+
+    // a stub, TODO implement with compute pipelines later
+
+}
+
+pub enum AFMainloopRenderType<'a> {
+
+    Empty {vertices: u32, calls: u32},
+    Vertex {vertices: u32, calls: u32, vertex_buffers: &'a [u8]},
+    Index {indices: u32, calls: u32, vertex_buffers: &'a [u8], index_buffer: &'a [u8]},
+
+}
+
+pub struct AFMainloopRenderCommand {
+
+    pub pipeline_index: usize,
+    pub enabled_bind_groups: Range<usize>,
+    pub clear_colour: [f64; 4],
+
+}
+
 // returned by the mainloop closure
 pub struct AFMainloop {
 
@@ -488,9 +510,9 @@ static mut DOWN_KEYS: Option<Vec<VirtualKeyCode>> = None;
 static mut CLICKED_KEYS: Option<Vec<VirtualKeyCode>> = None;
 
 // mainloop function
-pub fn mainloop<F: 'static>(context: &'static mut AFContext, window: AFWindow,
-                   pipelines: &[AFRenderPipeline], mainloop_function: F)
-    where F: Fn(AFMainloopState) -> AFMainloop {
+pub fn mainloop<F: 'static, K: 'static>(context: &'static mut AFContext, window: AFWindow,
+                   pipelines: &[AFRenderPipeline], mainloop_function: F, on_destroy: K)
+    where F: Fn(AFMainloopState) -> AFMainloop, K: Fn() -> () {
     let event_loop = window.event_loop;
     let window = window.window;
 
@@ -671,7 +693,7 @@ pub fn mainloop<F: 'static>(context: &'static mut AFContext, window: AFWindow,
                 context.queue.submit(&[command_buffer]);
             }
             Event::LoopDestroyed => {
-                //
+                on_destroy();
             }
             _ => {}
         }

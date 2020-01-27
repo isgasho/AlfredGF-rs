@@ -460,6 +460,8 @@ pub struct AFMainloopState {
     pub file_hovered: Vec<PathBuf>,
     pub was_resized: bool,
     pub events: Vec<AFMainloopInputEvent>,
+    pub pressed: Vec<VirtualKeyCode>,
+    pub clicked: Vec<VirtualKeyCode>,
 
 }
 
@@ -482,6 +484,8 @@ static mut CLOSE_REQUESTED: bool = false;
 static mut WAS_RESIZED: bool = false;
 static mut FILE_HOVERED: Option<Vec<PathBuf>> = None;
 static mut DROPPED_FILE: Option<Vec<PathBuf>> = None;
+static mut DOWN_KEYS: Option<Vec<VirtualKeyCode>> = None;
+static mut CLICKED_KEYS: Option<Vec<VirtualKeyCode>> = None;
 
 // mainloop function
 pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
@@ -504,6 +508,8 @@ pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
         SIZE = Option::Some(window.inner_size());
         FILE_HOVERED = Option::Some(Vec::new());
         DROPPED_FILE = Option::Some(Vec::new());
+        DOWN_KEYS = Option::Some(Vec::new());
+        CLICKED_KEYS = Option::Some(Vec::new());
     }
 
     let last: SystemTime;
@@ -549,11 +555,16 @@ pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
                     WindowEvent::KeyboardInput {device_id, input, is_synthetic} => {
                         // is_synthetic is windows exclusive
                         match input.state {
-                            ElementState::Pressed => {
-                                //
+                            ElementState::Pressed => unsafe {
+                                let key: VirtualKeyCode = input.virtual_keycode.unwrap();
+                                DOWN_KEYS.as_mut().unwrap().push(key);
+                                CLICKED_KEYS.as_mut().unwrap().push(key);
                             }
-                            ElementState::Released => {
-                                //
+                            ElementState::Released => unsafe {
+                                let key: VirtualKeyCode = input.virtual_keycode.unwrap();
+                                let index = DOWN_KEYS.as_ref().unwrap().iter()
+                                    .position(|x| *x == key).unwrap();
+                                DOWN_KEYS.as_mut().unwrap().remove(index);
                             }
                         }
                     }
@@ -605,14 +616,17 @@ pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
                     size: unsafe {SIZE.unwrap()},
                     close_requested: unsafe {CLOSE_REQUESTED},
                     focused: unsafe {FOCUSED},
-                    file_hovered: unsafe {FILE_HOVERED.as_mut().unwrap().clone()},
+                    file_hovered: unsafe {FILE_HOVERED.as_ref().unwrap().clone()},
                     events: dropped_files,
                     was_resized: unsafe {WAS_RESIZED},
+                    pressed: unsafe {DOWN_KEYS.as_ref().unwrap().clone()},
+                    clicked: unsafe {CLICKED_KEYS.as_ref().unwrap().clone()},
                 });
 
                 unsafe {
                     DROPPED_FILE = Option::Some(Vec::new());
                     WAS_RESIZED = false;
+                    CLICKED_KEYS = Option::Some(Vec::new());
                 };
 
                 match mainloop_data.destroy {

@@ -1,15 +1,4 @@
-use wgpu::{
-    read_spirv, Adapter, BackendBit, BindGroup, BindGroupDescriptor, BindGroupLayout,
-    BindGroupLayoutBinding, BindGroupLayoutDescriptor, Binding, BindingResource, BindingType,
-    BlendDescriptor, Buffer, BufferDescriptor, BufferUsage, ColorStateDescriptor, ColorWrite,
-    CullMode, Device, DeviceDescriptor, Extensions, FrontFace, IndexFormat, InputStepMode, Limits,
-    PipelineLayout, PipelineLayoutDescriptor, PowerPreference, PresentMode, PrimitiveTopology,
-    ProgrammableStageDescriptor, Queue, RasterizationStateDescriptor, RenderPipeline,
-    RenderPipelineDescriptor, RequestAdapterOptions, ShaderModule, ShaderStage, Surface, SwapChain,
-    SwapChainDescriptor, TextureFormat, TextureUsage, VertexAttributeDescriptor,
-    VertexBufferDescriptor, VertexFormat, CommandEncoder, CommandEncoderDescriptor, CommandBuffer,
-    RenderPassDescriptor, RenderPass, RenderPassColorAttachmentDescriptor,
-};
+use wgpu::{read_spirv, Adapter, BackendBit, BindGroup, BindGroupDescriptor, BindGroupLayout, BindGroupLayoutBinding, BindGroupLayoutDescriptor, Binding, BindingResource, BindingType, BlendDescriptor, Buffer, BufferDescriptor, BufferUsage, ColorStateDescriptor, ColorWrite, CullMode, Device, DeviceDescriptor, Extensions, FrontFace, IndexFormat, InputStepMode, Limits, PipelineLayout, PipelineLayoutDescriptor, PowerPreference, PresentMode, PrimitiveTopology, ProgrammableStageDescriptor, Queue, RasterizationStateDescriptor, RenderPipeline, RenderPipelineDescriptor, RequestAdapterOptions, ShaderModule, ShaderStage, Surface, SwapChain, SwapChainDescriptor, TextureFormat, TextureUsage, VertexAttributeDescriptor, VertexBufferDescriptor, VertexFormat, CommandEncoder, CommandEncoderDescriptor, CommandBuffer, RenderPassDescriptor, RenderPass, RenderPassColorAttachmentDescriptor, LoadOp, StoreOp, Color};
 
 use winit::{
     dpi::PhysicalSize,
@@ -168,30 +157,6 @@ impl<'a> AFShaderModule<'a> {
     }
 }
 
-pub struct AFBindGroup {
-    layout: BindGroupLayout,
-    bind_group: BindGroup,
-    //index_buffer: Option<Buffer>,
-    vertex_buffers: HashMap<u32, Buffer>,
-    // TODO use the below command to copy data to here and other
-    // wgpu::CommandEncoder.copy_buffer_to_buffer(&src, 0, &dst, 0, len_of_src); validate len of source first
-}
-
-pub enum AFBindingType {
-    Buffer {
-        size: usize,
-        dynamic: bool,
-        readonly: bool,
-    },
-    // TODO add more bindings here
-}
-
-pub struct AFBinding {
-    pub id: u32,
-    pub binding: AFBindingType,
-    pub visibility: ShaderStage,
-}
-
 fn create_buffer(context: &AFContext, usage: BufferUsage, data: &[u8]) -> Buffer {
     let buffer: Buffer = context
         .device
@@ -266,6 +231,8 @@ pub struct AFRenderPipelineConfig<'a> {
 
 pub struct AFRenderPipeline {
     uniform_buffers: HashMap<u32, Buffer>,
+    bind_group: BindGroup,
+    render_pipeline: RenderPipeline,
 }
 
 // contains a hashmap of uniforms;
@@ -305,6 +272,7 @@ impl AFRenderPipeline {
 
         // this is JUST for uniforms
         let mut real_uniform_map: HashMap<u32, Buffer> = HashMap::new();
+        let mut bindings: Vec<Binding> = Vec::new();
         unsafe {
             match TEMP_UNIFORM_MAP {
                 None => {
@@ -340,6 +308,7 @@ impl AFRenderPipeline {
                     }
                 })
                 .collect::<Vec<_>>();
+            bindings = uniform_bindings; // TODO change when adding more binding stuff
 
             for uniform in config.uniforms {
                 real_uniform_map.insert(
@@ -352,6 +321,11 @@ impl AFRenderPipeline {
                 );
             }
         }
+
+        let bind_group = context.device.create_bind_group(&BindGroupDescriptor {
+            layout: &bind_group_layout,
+            bindings: bindings.as_slice(),
+        });
 
         // vertex buffers
 
@@ -437,6 +411,8 @@ impl AFRenderPipeline {
         // pipeline creation
         return AFRenderPipeline {
             uniform_buffers: real_uniform_map,
+            bind_group,
+            render_pipeline,
         };
     }
 }
@@ -458,7 +434,7 @@ pub enum AFMainloopRenderCommandData<'a> {
 pub struct AFMainloopRenderCommand<'a> {
 
     pub pipeline_index: usize,
-    pub enabled_bind_groups: Range<usize>,
+    pub enabled_bind_group_indices: Range<u32>,
     pub clear_colour: [f64; 4],
     pub vertex_count: u32,
     pub calls: u32,
@@ -467,10 +443,11 @@ pub struct AFMainloopRenderCommand<'a> {
 }
 
 // returned by the mainloop closure
-pub struct AFMainloop {
+pub struct AFMainloop<'a> {
 
     pub destroy: bool,
     pub update_surface: bool,
+    pub render_commands: &'a [AFMainloopRenderCommand<'a>],
 
 }
 
@@ -514,7 +491,7 @@ static mut CLICKED_KEYS: Option<Vec<VirtualKeyCode>> = None;
 
 // mainloop function
 pub fn mainloop<F: 'static, K: 'static>(context: &'static mut AFContext, window: AFWindow,
-                   pipelines: &[AFRenderPipeline], mainloop_function: F, on_destroy: K)
+                   pipelines: Vec<AFRenderPipeline>, mainloop_function: F, on_destroy: K)
     where F: Fn(AFMainloopState) -> AFMainloop, K: Fn() -> () {
     let event_loop = window.event_loop;
     let window = window.window;
@@ -679,18 +656,36 @@ pub fn mainloop<F: 'static, K: 'static>(context: &'static mut AFContext, window:
                         todo: 0,
                     });
 
-                {
-//                    let mut render_pass = command_encoder.begin_render_pass(&RenderPassDescriptor{
-//                        color_attachments: &[RenderPassColorAttachmentDescriptor{
-//                            attachment: (),
-//                            resolve_target: None,
-//                            load_op: (),
-//                            store_op: (),
-//                            clear_color: (),
-//                        }],
-//                        depth_stencil_attachment: None,
-//                    });
-                }
+                mainloop_data.render_commands.iter().map(|render_command|{
+                    let frame = swap_chain.get_next_texture();
+                    //&mut pipelines[render_command.pipeline_index]
+                    let mut render_pass = command_encoder.begin_render_pass(&RenderPassDescriptor{
+                        color_attachments: &[RenderPassColorAttachmentDescriptor{
+                            attachment: &frame.view,
+                            resolve_target: None,
+                            load_op: LoadOp::Clear,
+                            store_op: StoreOp::Store,
+                            clear_color: Color {
+                                r: render_command.clear_colour[0],
+                                g: render_command.clear_colour[1],
+                                b: render_command.clear_colour[2],
+                                a: render_command.clear_colour[3],
+                            },
+                        }],
+                        depth_stencil_attachment: None,
+                    });
+                    render_pass.set_pipeline(
+                        &pipelines[render_command.pipeline_index].render_pipeline);
+
+                    let mut i: u32 = render_command.enabled_bind_group_indices.start;
+                    while i < render_command.enabled_bind_group_indices.end {
+                        render_pass.set_bind_group(
+                            i, &pipelines[render_command.pipeline_index].bind_group,
+                            &[0]); // TODO add offsets later properly
+                        i += 1;
+                    };
+
+                });
 
                 let command_buffer: CommandBuffer = command_encoder.finish();
                 context.queue.submit(&[command_buffer]);

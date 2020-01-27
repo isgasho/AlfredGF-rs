@@ -452,16 +452,16 @@ pub struct AFMainloop {
 // sent to the mainloop closure each time called
 // represents the state of the window, NOT events
 // sent that update the state
-pub struct AFMainloopState {
+pub struct AFMainloopState<'a> {
 
     pub size: PhysicalSize<u32>,
     pub close_requested: bool,
     pub focused: bool,
-    pub file_hovered: Vec<PathBuf>,
+    pub file_hovered: &'a Vec<PathBuf>,
     pub was_resized: bool,
     pub events: Vec<AFMainloopInputEvent>,
-    pub pressed: Vec<VirtualKeyCode>,
-    pub clicked: Vec<VirtualKeyCode>,
+    pub pressed: &'a Vec<VirtualKeyCode>,
+    pub clicked: &'a Vec<VirtualKeyCode>,
 
 }
 
@@ -511,10 +511,6 @@ pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
         DOWN_KEYS = Option::Some(Vec::new());
         CLICKED_KEYS = Option::Some(Vec::new());
     }
-
-    let last: SystemTime;
-
-    let mut then = SystemTime::now();
 
     event_loop.run(move |event, _, control_flow|{
         *control_flow = ControlFlow::Poll;
@@ -605,6 +601,7 @@ pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
                 window.request_redraw();
             }
             Event::RedrawRequested(window_id) => {
+                // something in here is freezing the window after a bit
                 let dropped_files: Vec<AFMainloopInputEvent> =
                     unsafe {
                         DROPPED_FILE.as_mut().unwrap().clone().iter().map(|path_buf|{
@@ -616,11 +613,11 @@ pub fn mainloop<F: 'static>(context: &'static AFContext, window: AFWindow,
                     size: unsafe {SIZE.unwrap()},
                     close_requested: unsafe {CLOSE_REQUESTED},
                     focused: unsafe {FOCUSED},
-                    file_hovered: unsafe {FILE_HOVERED.as_ref().unwrap().clone()},
+                    file_hovered: unsafe {FILE_HOVERED.as_ref().unwrap()},
                     events: dropped_files,
                     was_resized: unsafe {WAS_RESIZED},
-                    pressed: unsafe {DOWN_KEYS.as_ref().unwrap().clone()},
-                    clicked: unsafe {CLICKED_KEYS.as_ref().unwrap().clone()},
+                    pressed: unsafe {DOWN_KEYS.as_ref().unwrap()},
+                    clicked: unsafe {CLICKED_KEYS.as_ref().unwrap()},
                 });
 
                 unsafe {

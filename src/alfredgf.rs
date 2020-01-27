@@ -681,7 +681,7 @@ pub fn mainloop<F: 'static, K: 'static>(context: &'static mut AFContext, window:
                     while i < render_command.enabled_bind_group_indices.end {
                         render_pass.set_bind_group(
                             i, &pipelines[render_command.pipeline_index].bind_group,
-                            &[0]); // TODO add offsets later properly
+                            &[]); // TODO add offsets later properly
                         i += 1;
                     };
 

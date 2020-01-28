@@ -7,6 +7,8 @@ use wgpu::{
     VertexFormat, BackendBit,
 };
 
+use zerocopy::{AsBytes, FromBytes};
+
 fn main() {
     // window creation
     let window_config: alfredgf::AFWindowConfig = alfredgf::AFWindowConfig {
@@ -76,6 +78,12 @@ fn main() {
         },
     );
 
+    let vals = [
+        1.0, 0.0,
+        0.0, 1.0,
+        0.0, 0.0,
+    ].as_bytes();
+
     alfredgf::mainloop(context, window, vec![render_pipeline], |state|{
         alfredgf::AFMainloop{
             destroy: state.close_requested,
@@ -84,16 +92,10 @@ fn main() {
                 pipeline_index: 0,
                 enabled_bind_group_indices: 0..1, // just the zeroth is enabled
                 clear_colour: [1.0, 0.0, 1.0, 1.0],
-                vertex_count: 0,
-                calls: 0,
+                vertex_count: 3,
+                calls: 1,
                 render: alfredgf::AFMainloopRenderCommandData::Vertex {
-                    vertex_buffers: &[
-                        &[
-                            1, 0,
-                            0, 1,
-                            0, 0,
-                        ]
-                    ]
+                    vertex_buffers: vals.clone(),
                 },
             }],
         }

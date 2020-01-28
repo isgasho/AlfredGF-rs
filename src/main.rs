@@ -78,11 +78,11 @@ fn main() {
         },
     );
 
-    let vals: &[u8] = &[
+    let vals: Vec<u8> = vec![
         1.0, 0.0,
         0.0, 1.0,
         0.0, 0.0,
-    ].as_bytes();
+    ].as_bytes().to_vec();
 
     alfredgf::mainloop(context, window, vec![render_pipeline], move |state|{
         alfredgf::AFMainloop{

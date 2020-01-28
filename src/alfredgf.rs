@@ -657,7 +657,7 @@ pub fn mainloop<F: 'static, K: 'static>(context: &'static mut AFContext, window:
                     });
 
                 let frame = swap_chain.get_next_texture();
-                mainloop_data.render_commands.iter().map(|render_command|{
+                mainloop_data.render_commands.iter().for_each(|render_command|{
                     //&mut pipelines[render_command.pipeline_index]
                     let mut render_pass = command_encoder.begin_render_pass(&RenderPassDescriptor{
                         color_attachments: &[RenderPassColorAttachmentDescriptor{
@@ -686,7 +686,7 @@ pub fn mainloop<F: 'static, K: 'static>(context: &'static mut AFContext, window:
                     };
 
                     ()
-                }).collect::<Vec<_>>();
+                });
 
                 let command_buffer: CommandBuffer = command_encoder.finish();
                 context.queue.submit(&[command_buffer]);

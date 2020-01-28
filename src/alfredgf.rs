@@ -489,6 +489,8 @@ static mut DROPPED_FILE: Option<Vec<PathBuf>> = None;
 static mut DOWN_KEYS: Option<Vec<VirtualKeyCode>> = None;
 static mut CLICKED_KEYS: Option<Vec<VirtualKeyCode>> = None;
 
+static mut BUFFER_CACHE: Option<HashMap<&[u8], Buffer>> = None;
+
 // mainloop function
 pub fn mainloop<F: 'static, K: 'static>(context: &'static mut AFContext, window: AFWindow,
                    pipelines: Vec<AFRenderPipeline>, mainloop_function: F, on_destroy: K)
@@ -512,7 +514,10 @@ pub fn mainloop<F: 'static, K: 'static>(context: &'static mut AFContext, window:
         DROPPED_FILE = Option::Some(Vec::new());
         DOWN_KEYS = Option::Some(Vec::new());
         CLICKED_KEYS = Option::Some(Vec::new());
+        BUFFER_CACHE = Option::Some(HashMap::new());
     }
+
+    let vertex_buffers: HashMap<u32, Buffer> = HashMap::new();
 
     event_loop.run(move |event, _, control_flow|{
         *control_flow = ControlFlow::Poll;

@@ -78,13 +78,13 @@ fn main() {
         },
     );
 
-    let vals = [
+    let vals: &[u8] = &[
         1.0, 0.0,
         0.0, 1.0,
         0.0, 0.0,
     ].as_bytes();
 
-    alfredgf::mainloop(context, window, vec![render_pipeline], |state|{
+    alfredgf::mainloop(context, window, vec![render_pipeline], move |state|{
         alfredgf::AFMainloop{
             destroy: state.close_requested,
             update_surface: state.was_resized,
@@ -95,7 +95,7 @@ fn main() {
                 vertex_count: 3,
                 calls: 1,
                 render: alfredgf::AFMainloopRenderCommandData::Vertex {
-                    vertex_buffers: vals.clone(),
+                    vertex_buffers: &[vals.clone()],
                 },
             }],
         }

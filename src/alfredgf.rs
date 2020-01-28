@@ -517,8 +517,6 @@ pub fn mainloop<F: 'static, K: 'static>(context: &'static mut AFContext, window:
         BUFFER_CACHE = Option::Some(HashMap::new());
     }
 
-    let vertex_buffers: HashMap<u32, Buffer> = HashMap::new();
-
     event_loop.run(move |event, _, control_flow|{
         *control_flow = ControlFlow::Poll;
 

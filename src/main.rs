@@ -87,7 +87,13 @@ fn main() {
                 vertex_count: 0,
                 calls: 0,
                 render: alfredgf::AFMainloopRenderCommandData::Vertex {
-                    vertex_buffers: &[]
+                    vertex_buffers: &[
+                        &[
+                            1, 0,
+                            0, 1,
+                            0, 0,
+                        ]
+                    ]
                 },
             }],
         }

@@ -656,8 +656,8 @@ pub fn mainloop<F: 'static, K: 'static>(context: &'static mut AFContext, window:
                         todo: 0,
                     });
 
+                let frame = swap_chain.get_next_texture();
                 mainloop_data.render_commands.iter().map(|render_command|{
-                    let frame = swap_chain.get_next_texture();
                     //&mut pipelines[render_command.pipeline_index]
                     let mut render_pass = command_encoder.begin_render_pass(&RenderPassDescriptor{
                         color_attachments: &[RenderPassColorAttachmentDescriptor{

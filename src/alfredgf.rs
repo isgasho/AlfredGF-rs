@@ -423,31 +423,31 @@ pub struct AFMainloopComputeCommand {
 
 }
 
-pub enum AFMainloopRenderCommandData<'a> {
+pub enum AFMainloopRenderCommandData {
 
     Empty,
-    Vertex {vertex_buffers: &'a [&'a [u8]]},
-    Index {vertex_buffers: &'a [&'a [u8]], index_buffer: &'a [u8]},
+    Vertex {vertex_buffers: Vec<Vec<u8>>},
+    Index {vertex_buffers: Vec<Vec<u8>>, index_buffer: Vec<u8>},
 
 }
 
-pub struct AFMainloopRenderCommand<'a> {
+pub struct AFMainloopRenderCommand {
 
     pub pipeline_index: usize,
     pub enabled_bind_group_indices: Range<u32>,
     pub clear_colour: [f64; 4],
     pub vertex_count: u32,
     pub calls: u32,
-    pub render: AFMainloopRenderCommandData<'a>,
+    pub render: AFMainloopRenderCommandData,
 
 }
 
 // returned by the mainloop closure
-pub struct AFMainloop<'a> {
+pub struct AFMainloop {
 
     pub destroy: bool,
     pub update_surface: bool,
-    pub render_commands: &'a [AFMainloopRenderCommand<'a>],
+    pub render_commands: Vec<AFMainloopRenderCommand>,
 
 }
 

@@ -88,14 +88,14 @@ fn main() {
         alfredgf::AFMainloop{
             destroy: state.close_requested,
             update_surface: state.was_resized,
-            render_commands: &[alfredgf::AFMainloopRenderCommand{
+            render_commands: vec![alfredgf::AFMainloopRenderCommand{
                 pipeline_index: 0,
                 enabled_bind_group_indices: 0..1, // just the zeroth is enabled
                 clear_colour: [1.0, 0.0, 1.0, 1.0],
                 vertex_count: 3,
                 calls: 1,
                 render: alfredgf::AFMainloopRenderCommandData::Vertex {
-                    vertex_buffers: &[vals.clone()],
+                    vertex_buffers: vec![vals.clone()],
                 },
             }],
         }

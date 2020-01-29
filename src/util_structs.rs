@@ -1,3 +1,10 @@
+//! `util_structs` is a collection of
+//! mostly lightweight structs which are
+//! used as nice utilities for
+//! other parts of AlfredGF
+//!
+//! # Examples
+
 #[derive(Copy, Clone)]
 pub struct AFSize2D {
 

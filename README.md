@@ -2,7 +2,7 @@ AlfredGF-rs
 =
 A functional API for low level rendering.
 
-New spec:
+Specification:
 
     AFSize2D {
     
@@ -253,3 +253,20 @@ New spec:
         fn new(config: &AFRenderCommandConfig, pipeline: &AFRenderPipeline) -> AFRenderCommand
     
     }
+    
+    enum AFWindowCommand {
+    
+        UpdateSurface
+        ResizeWindow(Size2D)
+        DestroyWindow
+    
+    }
+    
+    AFCommandBunch {
+    
+        render_commands: Vec<AFRenderCommand>
+        window_commands: Vec<AFWindowCommand>
+    
+    }
+    
+    fn mainloop<F: 'static, T: 'static>() where F: Fn() -> AFCommandBunch, T: Fn() -> ();

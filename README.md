@@ -81,14 +81,33 @@ New spec:
     
     enum AFVertexStepMode {
     
-        Vertex,
+        Vertex
         Instance
+    
+    }
+    
+    enum AFVertexFormat {
+    
+        Float
+        Float2
+        Float3
+        Float4
+        UnsignedInt
+        UnsignedInt2
+        UnsignedInt3
+        UnsignedInt4
+        Int
+        Int2
+        Int3
+        Int4
     
     }
     
     AFVertexAttrib {
         
-            //
+        location: u32
+        offset: u32
+        vertex_format: AFVertexFormat
         
     }
     
@@ -100,15 +119,20 @@ New spec:
     
     }
     
-    AFUniform {
+    enum AFUniformType {
     
-        //
+        Sampler,
+        Buffer,
+        Storage,
     
     }
     
-    AFStorage {
+    AFUniform {
     
-        //
+        location: u32
+        stage: AFShaderStage
+        dynamic: bool
+        byte_size: u32
     
     }
     
@@ -129,11 +153,66 @@ New spec:
     
     }
     
-    AFRenderPipelineConfig {
+    enum AFBlendOperation {
     
-        uniforms
-        storage
-        samplers
-        vertex_buffer_slots
+        Add
+        Subtract
+        ReverseSubtract
+        Min
+        Max
+    
+    }
+    
+    enum AFBlendFactor {
+    
+        Zero
+        One
+        SrcColour
+        OneMinusSrcColour
+        SrcAlpha
+        OneMinusSrcAlpha
+        DstColour
+        OneMinusDstColour
+        DstAlpha
+        OneMinusDstAlpha
+        SrcAlphaSaturated
+        BlendColour
+        OneMinusBlendColour
+    
+    }
+    
+    AFBlendOperation {
+    
+        src_factor: AFBlendFactor
+        dst_factor: AFBlendFactor
+        operation: AFBlendOperation
+    
+    }
+    
+    AFFace {
+    
+        Clockwise
+        CounterClockwise
+    
+    }
+    
+    AFCullMode {
+    
+        None
+        Front
+        Back
+    
+    }
+        
+    AFRenderPipelineConfig<'a> {
+    
+        uniforms: &'a [AFUniform]
+        vertex_buffer_slots: &'a [VertexBufferSlot]
+        colour_blend: AFBlendOperation
+        alpha_blend: AFBlendOperation
+        primitive: AFDrawablePrimitive
+        front_face: AFFace
+        cull_mode: AFCullMode
+        index_format: AFIndexFormat
     
     }

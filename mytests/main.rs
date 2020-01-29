@@ -16,8 +16,7 @@ use AlfredGF_rs::{
     },
 };
 
-#[test]
-fn test() -> () {
+pub fn main(){
     let size: AFSize2D = AFSize2D {
         width: 1280, height: 720
     };

@@ -66,12 +66,12 @@ New spec:
     
     enum AFShaderStage {
         
-            None,
-            Vertex,
-            Fragment,
-            Compute,
+        None,
+        Vertex,
+        Fragment,
+        Compute,
         
-        }
+    }
     
     AFShaderModule {
     
@@ -203,6 +203,8 @@ New spec:
         Back
     
     }
+    
+    AFUniformGroup
         
     AFRenderPipelineConfig<'a> {
     
@@ -214,5 +216,40 @@ New spec:
         front_face: AFFace
         cull_mode: AFCullMode
         index_format: AFIndexFormat
+    
+    }
+    
+    AFRenderPipeline {
+    
+        fn new(context: &AFContext, config: &AFRenderPipelineConfig) -> AFRenderPipeline
+    
+    }
+    
+    enum AFRenderCommandType {
+    
+        Empty
+        Vertex {
+            vertex_data: Vec<Vec<u8>>
+        }
+        Indices {
+            vertex_data: Vec<Vec<u8>>
+            index_data: Vec<u8>
+        }
+    
+    }
+    
+    AFRenderCommandConfig {
+    
+        colour: [f64; 4]
+        vertex_count: u32
+        enabled_uniform_groups: Range<u32>
+        calls: u32
+        type: AFRenderCommandType
+    
+    }
+    
+    AFRenderCommand {
+    
+        fn new(config: &AFRenderCommandConfig, pipeline: &AFRenderPipeline) -> AFRenderCommand
     
     }

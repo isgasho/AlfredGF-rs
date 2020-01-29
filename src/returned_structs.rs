@@ -1,7 +1,3 @@
-//! `returned_structs` is a collection of
-//! structs which are constructed with
-//! configs.
-
 use crate::config_structs::{
     AFWindowConfig,
 };

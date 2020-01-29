@@ -1,10 +1,9 @@
-//! `config_structs` is a collection of
-//! all structs used for creating a
-//! struct from `returned_structs`
-
 use crate::util_structs::{
     AFImage,
     AFSize2D,
+};
+use crate::enums::{
+    AFBackendLibrary,
 };
 
 #[derive(Copy, Clone)]
@@ -19,5 +18,14 @@ pub struct AFWindowConfig<'a> {
     pub always_on_top: bool,
     pub maximized: bool,
     pub title: &'a str,
+
+}
+
+#[derive(Copy, Clone)]
+pub struct AFContextConfig {
+
+    vsync: bool,
+    anisotropic_filtering: bool,
+    backend_lib: AFBackendLibrary,
 
 }

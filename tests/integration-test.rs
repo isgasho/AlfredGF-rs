@@ -1,9 +1,19 @@
 extern crate AlfredGF_rs;
 
 use AlfredGF_rs::{
-    AFSize2D,
-    AFImage,
-    AFWindowConfig,
+    util_structs::{
+        AFSize2D,
+        AFImage,
+    },
+    config_structs::{
+        AFWindowConfig,
+    },
+    returned_structs::{
+        //
+    },
+    enums::{
+        //
+    },
 };
 
 #[test]

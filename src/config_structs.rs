@@ -1,3 +1,7 @@
+//! `config_structs` is a collection of
+//! all structs used for creating a
+//! struct from `returned_structs`
+
 use crate::util_structs::{
     AFImage,
     AFSize2D,

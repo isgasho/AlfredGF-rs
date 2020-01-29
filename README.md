@@ -250,6 +250,8 @@ Specification:
     
     AFRenderCommand {
     
+        // note: the pointer to AFRenderPipeline should NOT
+        // be kept and referenced in the static closure
         fn new(config: &AFRenderCommandConfig, pipeline: &AFRenderPipeline) -> AFRenderCommand
     
     }
@@ -269,4 +271,10 @@ Specification:
     
     }
     
-    fn mainloop<F: 'static, T: 'static>() where F: Fn() -> AFCommandBunch, T: Fn() -> ();
+    AFMainloopState {
+    
+        //
+    
+    }
+    
+    fn mainloop<F: 'static, T: 'static>() where F: Fn(AFMainloopState) -> AFCommandBunch, T: Fn() -> ();

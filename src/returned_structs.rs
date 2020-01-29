@@ -1,5 +1,6 @@
 use crate::config_structs::{
     AFWindowConfig,
+    AFContextConfig,
 };
 use winit::{
     window::{
@@ -46,6 +47,23 @@ impl AFWindow {
         return AFWindow {
             window,
             event_loop,
+        };
+    }
+
+}
+
+pub struct AFContext {
+
+    //
+
+}
+
+impl AFContext {
+
+    // absorbs the window
+    pub fn new(window: AFWindow, config: &AFContextConfig) -> AFContext {
+        return AFContext {
+            //
         };
     }
 

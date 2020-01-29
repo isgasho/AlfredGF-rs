@@ -14,5 +14,6 @@ pub struct AFWindowConfig<'a> {
     pub visible: bool,
     pub always_on_top: bool,
     pub maximized: bool,
+    pub title: &'a str,
 
 }

@@ -9,7 +9,7 @@ use AlfredGF_rs::{
         AFWindowConfig,
     },
     returned_structs::{
-        //
+        AFWindow,
     },
     enums::{
         //
@@ -30,5 +30,7 @@ fn test() -> () {
         visible: true,
         always_on_top: false,
         maximized: false,
+        title: "Test",
     };
+    let window: AFWindow = AFWindow::new(&config);
 }

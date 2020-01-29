@@ -25,7 +25,7 @@ pub struct AFWindow {
 
 impl AFWindow {
 
-    pub fn new(config: &AFWindowConfig) -> AFWindow {
+    pub fn new(config: &AFWindowConfig) -> Self {
         let builder: WindowBuilder = WindowBuilder::new()
             .with_inner_size(PhysicalSize::new(config.start_size.width, config.start_size.height))
             .with_max_inner_size(PhysicalSize::new(config.max_size.width, config.max_size.height))
@@ -61,7 +61,7 @@ pub struct AFContext {
 impl AFContext {
 
     // absorbs the window
-    pub fn new(window: AFWindow, config: &AFContextConfig) -> AFContext {
+    pub fn new(window: AFWindow, config: &AFContextConfig) -> Self {
         return AFContext {
             //
         };

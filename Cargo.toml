@@ -4,10 +4,13 @@ version = "0.0.0"
 authors = ["Lonsdaleiter <lonsdaleiteproductions@gmail.com>"]
 edition = "2018"
 
-[[test]]
-name = "mytests"
-path = "mytests/main.rs"
-harness = false
+[[example]]
+name = "render"
+path = "examples/render/main.rs"
+
+[lib]
+name = "AlfredGF_rs"
+path = "src/lib.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

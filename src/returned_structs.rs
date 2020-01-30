@@ -15,6 +15,18 @@ use winit::{
         EventLoop,
     },
 };
+use wgpu::{
+    Adapter,
+    RequestAdapterOptions,
+    PresentMode,
+    Limits,
+    Device,
+    DeviceDescriptor,
+    Queue,
+    Extensions,
+    PowerPreference,
+    BackendBit,
+};
 
 pub struct AFWindow {
 
@@ -54,7 +66,11 @@ impl AFWindow {
 
 pub struct AFContext {
 
-    //
+    window: Window,
+    present_mode: PresentMode,
+    device: Device,
+    queue: Queue,
+    adapter: Adapter,
 
 }
 
@@ -62,8 +78,30 @@ impl AFContext {
 
     // absorbs the window
     pub fn new(window: AFWindow, config: &AFContextConfig) -> Self {
+        let adapter: Adapter = Adapter::request(&RequestAdapterOptions {
+            power_preference: PowerPreference::Default, // TODO make configurable
+            backends: BackendBit::PRIMARY, // TODO make configurable
+        }).unwrap();
+
+        let (device, queue): (Device, Queue) =
+            adapter.request_device(&DeviceDescriptor {
+                extensions: Extensions {
+                    anisotropic_filtering: config.anisotropic_filtering,
+                },
+                limits: Limits::default(),
+            });
+
+        let present_mode: PresentMode = match config.vsync {
+            true => PresentMode::Vsync,
+            false => PresentMode::NoVsync,
+        };
+
         return AFContext {
-            //
+            window: window.window,
+            present_mode,
+            device,
+            queue,
+            adapter,
         };
     }
 

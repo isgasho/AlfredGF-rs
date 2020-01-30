@@ -24,8 +24,8 @@ pub struct AFWindowConfig<'a> {
 #[derive(Copy, Clone)]
 pub struct AFContextConfig {
 
-    vsync: bool,
-    anisotropic_filtering: bool,
-    backend_lib: AFBackendLibrary,
+    pub vsync: bool,
+    pub anisotropic_filtering: bool,
+    pub backend_lib: AFBackendLibrary,
 
 }

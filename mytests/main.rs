@@ -8,15 +8,17 @@ use AlfredGF_rs::{
     config_structs::{
         AFWindowConfig,
     },
-    returned_structs::{
-        AFWindow,
-        AFContext,
-
+    constructors::{
         AFWindowConstructor,
         AFContextConstructor,
     },
     enums::{
         //
+    },
+
+    implementation::{
+        AFWindow,
+        AFContext,
     },
 };
 

@@ -1,11 +1,7 @@
-use crate::config_structs::{
-    AFWindowConfig,
-    AFContextConfig,
-};
-use crate::enums::{
-    AFBackendLibrary,
-    AFPowerPreference,
-};
+use crate::config_structs::*;
+use crate::enums::*;
+use crate::constructors::*;
+
 use winit::{
     window::{
         Window,
@@ -39,12 +35,6 @@ pub struct AFWindow {
 
 }
 
-pub trait AFWindowConstructor {
-
-    fn new(config: &AFWindowConfig) -> Self;
-
-}
-
 pub struct AFContext {
 
     window: Window,
@@ -52,12 +42,6 @@ pub struct AFContext {
     device: Device,
     queue: Queue,
     adapter: Adapter,
-
-}
-
-pub trait AFContextConstructor {
-
-    fn new(window: AFWindow, config: &AFContextConfig) -> Self;
 
 }
 
@@ -92,7 +76,7 @@ impl AFWindowConstructor for AFWindow {
 
 }
 
-impl AFContextConstructor for AFContext {
+impl AFContextConstructor<AFWindow> for AFContext {
 
     // absorbs the window
     fn new(window: AFWindow, config: &AFContextConfig) -> Self {

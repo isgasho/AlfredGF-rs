@@ -87,13 +87,13 @@ pub struct AFBlendDescriptor {
 #[derive(Copy, Clone)]
 pub struct AFRenderPipelineConfig<'a> {
 
-    pub uniforms: &'a [AFUniformGroup],
-    pub vertex_buffer_slots: &'a [AFVertexBufferSlot],
+    pub uniforms: &'a [AFUniformGroup<'a>],
+    pub vertex_buffer_slots: &'a [AFVertexBufferSlot<'a>],
     pub colour_blend: AFBlendDescriptor,
     pub alpha_blend: AFBlendDescriptor,
     pub primitive: AFDrawablePrimitive,
-    pub front_face: AFFace,
-    pub cull_mode: Option<AFDirection>,
+    pub front_face: AFDirection,
+    pub cull_mode: Option<AFFace>,
     pub index_format: AFIndexFormat,
 
 }

@@ -93,4 +93,15 @@ pub fn main(){
         step_mode: AFVertexStepMode::PerVertex,
         attribs: &[position_attrib],
     };
+
+    let main_render_pipeline_config: AFRenderPipelineConfig = AFRenderPipelineConfig {
+        uniforms: &[uniform_group],
+        vertex_buffer_slots: &[position_buffer_slot],
+        colour_blend: blend_descriptor,
+        alpha_blend: blend_descriptor,
+        primitive: AFDrawablePrimitive::Triangles,
+        front_face: AFDirection::Clockwise,
+        cull_mode: None,
+        index_format: AFIndexFormat::UnsignedInt16,
+    };
 }

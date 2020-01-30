@@ -2,10 +2,7 @@ use crate::util_structs::{
     AFImage,
     AFSize2D,
 };
-use crate::enums::{
-    AFBackendLibrary,
-    AFPowerPreference
-};
+use crate::enums::*;
 
 #[derive(Copy, Clone)]
 pub struct AFWindowConfig<'a> {
@@ -29,5 +26,14 @@ pub struct AFContextConfig {
     pub anisotropic_filtering: bool,
     pub backend_lib: AFBackendLibrary,
     pub power_preference: AFPowerPreference,
+
+}
+
+#[derive(Copy, Clone)]
+pub struct AFShaderConfig<'a> {
+
+    pub stage: AFShaderStage,
+    pub bytecode: &'a [u8],
+    pub entry_point: &'a str,
 
 }

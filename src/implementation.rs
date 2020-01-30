@@ -45,6 +45,12 @@ pub struct AFContext {
 
 }
 
+pub struct AFShaderModule {
+
+    //
+
+}
+
 // implementation
 
 impl AFWindowConstructor for AFWindow {
@@ -117,4 +123,12 @@ impl AFContextConstructor<AFWindow> for AFContext {
         };
     }
 
+}
+
+impl AFShaderConstructor<AFContext> for AFShaderModule {
+    fn new(context: &AFContext, config: &AFShaderConfig) -> Self {
+        return AFShaderModule {
+            //
+        };
+    }
 }

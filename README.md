@@ -81,8 +81,8 @@ Specification:
     
     enum AFVertexStepMode {
     
-        Vertex
-        Instance
+        PerVertex
+        PerInstance
     
     }
     

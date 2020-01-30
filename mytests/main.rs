@@ -88,7 +88,7 @@ pub fn main(){
         offset: 0,
         vertex_format: AFVertexFormat::Float,
     };
-    let position_buffer_slot: AFVertexBufferSlot = AFVertexBufferSlot {
+    let position_buffer: AFVertexBuffer = AFVertexBuffer {
         stride: 0,
         step_mode: AFVertexStepMode::PerVertex,
         attribs: &[position_attrib],
@@ -96,7 +96,7 @@ pub fn main(){
 
     let main_render_pipeline_config: AFRenderPipelineConfig = AFRenderPipelineConfig {
         uniforms: &[uniform_group],
-        vertex_buffer_slots: &[position_buffer_slot],
+        vertex_buffer_slots: &[position_buffer],
         colour_blend: blend_descriptor,
         alpha_blend: blend_descriptor,
         primitive: AFDrawablePrimitive::Triangles,

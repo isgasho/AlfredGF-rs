@@ -3,6 +3,7 @@ use crate::util_structs::{
     AFSize2D,
 };
 use crate::enums::*;
+use std::ops::Range;
 
 #[derive(Copy, Clone)]
 pub struct AFWindowConfig<'a> {
@@ -48,7 +49,7 @@ pub struct AFVertexAttrib {
 }
 
 #[derive(Copy, Clone)]
-pub struct AFVertexBufferSlot<'a> {
+pub struct AFVertexBuffer<'a> {
 
     pub stride: u64,
     pub step_mode: AFVertexStepMode,
@@ -88,12 +89,22 @@ pub struct AFBlendDescriptor {
 pub struct AFRenderPipelineConfig<'a> {
 
     pub uniforms: &'a [AFUniformGroup<'a>],
-    pub vertex_buffer_slots: &'a [AFVertexBufferSlot<'a>],
+    pub vertex_buffer_slots: &'a [AFVertexBuffer<'a>],
     pub colour_blend: AFBlendDescriptor,
     pub alpha_blend: AFBlendDescriptor,
     pub primitive: AFDrawablePrimitive,
     pub front_face: AFDirection,
     pub cull_mode: Option<AFFace>,
     pub index_format: AFIndexFormat,
+
+}
+
+pub struct AFRenderCommandConfig {
+
+    colour: [f64; 4],
+    vertex_count: u32,
+    enabled_uniform_groups: Range<u32>,
+    calls: u32,
+    command_type: AFRenderCommandType,
 
 }

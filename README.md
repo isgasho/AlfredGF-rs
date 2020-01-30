@@ -270,17 +270,10 @@ Specification:
     
     }
     
-    AFCommandBunch {
-    
-        render_commands: Vec<AFRenderCommand>
-        window_commands: Vec<AFWindowCommand>
-    
-    }
-    
     AFMainloopState {
     
         //
     
     }
     
-    fn mainloop<F: 'static, T: 'static>() where F: Fn(AFMainloopState) -> AFCommandBunch, T: Fn() -> ();
+    fn mainloop<F: 'static, T: 'static>() where F: Fn(AFMainloopState) -> (), T: Fn() -> ();

@@ -19,3 +19,15 @@ pub trait AFShaderConstructor<Context> {
     fn new(context: &Context, config: &AFShaderConfig) -> Self;
 
 }
+
+pub trait AFRenderPipelineConstructor<Context> {
+
+    fn new(context: &Context, config: &AFRenderPipelineConfig) -> Self;
+
+}
+
+pub trait AFRenderCommandConstructor<Pipeline> {
+
+    fn new(pipeline: &Pipeline, config: &AFRenderCommandConfig) -> Self;
+
+}

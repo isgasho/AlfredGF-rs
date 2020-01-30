@@ -1,3 +1,5 @@
+use crate::util_structs::*;
+
 #[derive(Copy, Clone)]
 pub enum AFBackendLibrary {
 
@@ -125,5 +127,26 @@ pub enum AFFace {
 
     Front,
     Back,
+
+}
+
+pub enum AFRenderCommandType {
+
+    Empty,
+    Vertex {
+        vertex_data: Vec<Vec<u8>>,
+    },
+    Indices {
+        vertex_data: Vec<Vec<u8>>,
+        index_data: Vec<u8>,
+    },
+
+}
+
+pub enum AFWindowCommand {
+
+    UpdateSurface,
+    ResizeWindow(AFSize2D),
+    DestroyWindow,
 
 }

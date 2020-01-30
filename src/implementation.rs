@@ -140,12 +140,14 @@ impl AFRenderPipelineConstructor<AFContext> for AFRenderPipeline {
 }
 
 impl AFMainloop for AFContext {
-    fn mainloop<F: 'static, T: 'static>(context: AFContext, on_loop: F, on_finish: T)
+    fn mainloop<F: 'static, T: 'static>(context: AFContext, on_redraw: F, on_finish: T)
     where
         F: Fn(AFMainloopState) -> (),
         T: Fn() -> (),
     {
-        context.event_loop.run(move |event, _, control_flow|{
+        let AFContext{event_loop:event_loop, window:window, ..} = context;
+
+        event_loop.run(move |event, _, control_flow|{
             *control_flow = ControlFlow::Poll;
 
             match event {
@@ -153,13 +155,13 @@ impl AFMainloop for AFContext {
                     // do stuff with the window event
                 },
                 Event::MainEventsCleared => {
-                    //
+                    window.request_redraw();
                 },
                 Event::RedrawRequested(window_id) => {
-                    //
+                    on_redraw(AFMainloopState{});
                 },
                 Event::LoopDestroyed => {
-                    //
+                    on_finish();
                 },
                 _ => {},
             }

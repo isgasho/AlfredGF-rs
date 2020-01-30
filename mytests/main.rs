@@ -1,28 +1,14 @@
 extern crate AlfredGF_rs;
 
 use AlfredGF_rs::{
-    util_structs::{
-        AFSize2D,
-        AFImage,
-    },
-    config_structs::{
-        AFWindowConfig,
-        AFContextConfig,
-    },
-    constructors::{
-        AFWindowConstructor,
-        AFContextConstructor,
-    },
-    enums::{
-        AFBackendLibrary,
-        AFPowerPreference,
-    },
-
-    implementation::{
-        AFWindow,
-        AFContext,
-    },
+    util_structs::*,
+    config_structs::*,
+    constructors::*,
+    enums::*,
+    implementation::*,
 };
+use AlfredGF_rs::implementation::AFShaderModule;
+use AlfredGF_rs::config_structs::AFShaderConfig;
 
 pub fn main(){
     let size: AFSize2D = AFSize2D {
@@ -65,4 +51,17 @@ pub fn main(){
     };
 
     let context: AFContext = AFContext::new(window, &context_config);
+
+    let v_s_c: AFShaderConfig = AFShaderConfig {
+        stage: AFShaderStage::Vertex,
+        bytecode: include_bytes!("shader.vert.spv"),
+        entry_point: "main"
+    };
+    let f_s_c: AFShaderConfig = AFShaderConfig {
+        stage: AFShaderStage::Fragment,
+        bytecode: include_bytes!("shader.frag.spv"),
+        entry_point: "main"
+    };
+    let vertex_shader: AFShaderModule = AFShaderModule::new(&context, &v_s_c);
+    let fragment_shader: AFShaderModule = AFShaderModule::new(&context, &f_s_c);
 }

@@ -37,3 +37,21 @@ pub struct AFShaderConfig<'a> {
     pub entry_point: &'a str,
 
 }
+
+#[derive(Copy, Clone)]
+pub struct AFVertexAttrib {
+
+    pub location: u32,
+    pub offset: u32,
+    pub vertex_format: AFVertexFormat,
+
+}
+
+#[derive(Copy, Clone)]
+pub struct AFVertexBufferSlot<'a> {
+
+    pub stride: u64,
+    pub step_mode: AFVertexStepMode,
+    pub attribs: &'a [AFVertexFormat],
+
+}

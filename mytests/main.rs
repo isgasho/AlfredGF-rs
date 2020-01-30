@@ -64,4 +64,33 @@ pub fn main(){
     };
     let vertex_shader: AFShaderModule = AFShaderModule::new(&context, &v_s_c);
     let fragment_shader: AFShaderModule = AFShaderModule::new(&context, &f_s_c);
+
+    let test_uniform: AFUniform = AFUniform {
+        location: 0,
+        stage: AFShaderStage::Vertex,
+        dynamic: true,
+        byte_size: 4, // 4 bytes per float
+        uniform_type: AFUniformType::Buffer,
+    };
+    let uniform_group: AFUniformGroup = AFUniformGroup {
+        set: 0,
+        uniforms: &[test_uniform],
+    };
+
+    let blend_descriptor: AFBlendDescriptor = AFBlendDescriptor {
+        src_factor: AFBlendFactor::One,
+        dst_factor: AFBlendFactor::Zero,
+        operation: AFBlendOperation::Add,
+    };
+
+    let position_attrib: AFVertexAttrib = AFVertexAttrib {
+        location: 0,
+        offset: 0,
+        vertex_format: AFVertexFormat::Float,
+    };
+    let position_buffer_slot: AFVertexBufferSlot = AFVertexBufferSlot {
+        stride: 0,
+        step_mode: AFVertexStepMode::PerVertex,
+        attribs: &[position_attrib],
+    };
 }

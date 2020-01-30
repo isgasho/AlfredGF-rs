@@ -52,7 +52,7 @@ pub struct AFVertexBufferSlot<'a> {
 
     pub stride: u64,
     pub step_mode: AFVertexStepMode,
-    pub attribs: &'a [AFVertexFormat],
+    pub attribs: &'a [AFVertexAttrib],
 
 }
 
@@ -81,5 +81,19 @@ pub struct AFBlendDescriptor {
     pub src_factor: AFBlendFactor,
     pub dst_factor: AFBlendFactor,
     pub operation: AFBlendOperation,
+
+}
+
+#[derive(Copy, Clone)]
+pub struct AFRenderPipelineConfig<'a> {
+
+    pub uniforms: &'a [AFUniformGroup],
+    pub vertex_buffer_slots: &'a [AFVertexBufferSlot],
+    pub colour_blend: AFBlendDescriptor,
+    pub alpha_blend: AFBlendDescriptor,
+    pub primitive: AFDrawablePrimitive,
+    pub front_face: AFFace,
+    pub cull_mode: Option<AFDirection>,
+    pub index_format: AFIndexFormat,
 
 }

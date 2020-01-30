@@ -216,8 +216,8 @@ Specification:
     
         uniforms: &'a [AFUniformGroup<'a>]
         vertex_buffer_slots: &'a [VertexBufferSlot]
-        colour_blend: AFBlendOperation
-        alpha_blend: AFBlendOperation
+        colour_blend: AFBlendDescriptor
+        alpha_blend: AFBlendDescriptor
         primitive: AFDrawablePrimitive
         front_face: AFFace
         cull_mode: AFCullMode

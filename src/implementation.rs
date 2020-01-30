@@ -28,6 +28,7 @@ use wgpu::{
     BackendBit,
     ShaderModule,
     ShaderStage,
+    BlendDescriptor,
     read_spirv,
 };
 

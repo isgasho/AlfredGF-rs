@@ -57,9 +57,9 @@ pub enum AFVertexFormat {
 #[derive(Copy, Clone)]
 pub enum AFUniformType {
 
+    Buffer,
     Sampler,
     Storage,
-    Buffer,
 
 }
 

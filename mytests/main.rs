@@ -44,7 +44,25 @@ pub fn main(){
     let context_config: AFContextConfig = AFContextConfig {
         vsync: true,
         anisotropic_filtering: false,
-        backend_lib: AFBackendLibrary::Metal,
+        backend_lib: {
+            #[cfg(target_os = "macos")]{
+                AFBackendLibrary::Metal
+            }
+            #[cfg(target_os = "ios")]{
+                AFBackendLibrary::Metal
+            }
+            #[cfg(target_os = "android")]{
+                AFBackendLibrary::OpenGL
+            }
+            #[cfg(target_os = "windows")]{
+                AFBackendLibrary::Vulkan
+            }
+            #[cfg(target_os = "linux")]{
+                AFBackendLibrary::Vulkan
+            }
+        },
         power_preference: AFPowerPreference::LowPower,
     };
+
+    let context: AFContext = AFContext::new(window, &context_config);
 }

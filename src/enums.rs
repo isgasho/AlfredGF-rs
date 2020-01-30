@@ -14,6 +14,6 @@ pub enum AFPowerPreference {
 
     LowPower,
     Default,
-    HighPerformance,
+    HighPower,
 
 }

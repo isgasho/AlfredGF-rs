@@ -8,7 +8,8 @@ use wgpu::{
 };
 use winit::{
     dpi::PhysicalSize,
-    event_loop::EventLoop,
+    event_loop::{EventLoop, ControlFlow},
+    event::{Event, WindowEvent},
     window::{Icon, Window, WindowBuilder},
 };
 
@@ -19,6 +20,7 @@ pub struct AFWindow {
 
 pub struct AFContext {
     window: Window,
+    event_loop: EventLoop<()>,
     present_mode: PresentMode,
     device: Device,
     queue: Queue,
@@ -103,6 +105,7 @@ impl AFContextConstructor<AFWindow> for AFContext {
 
         return AFContext {
             window: window.window,
+            event_loop: window.event_loop,
             present_mode,
             device,
             queue,
@@ -142,6 +145,24 @@ impl AFMainloop for AFContext {
         F: Fn(AFMainloopState) -> (),
         T: Fn() -> (),
     {
-        println!("hey");
+        context.event_loop.run(move |event, _, control_flow|{
+            *control_flow = ControlFlow::Poll;
+
+            match event {
+                Event::WindowEvent {window_id, event} => {
+                    // do stuff with the window event
+                },
+                Event::MainEventsCleared => {
+                    //
+                },
+                Event::RedrawRequested(window_id) => {
+                    //
+                },
+                Event::LoopDestroyed => {
+                    //
+                },
+                _ => {},
+            }
+        });
     }
 }

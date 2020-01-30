@@ -1,20 +1,15 @@
 extern crate AlfredGF_rs;
 
-use AlfredGF_rs::{
-    util_structs::*,
-    generic::*,
-    constructors::*,
-    enums::*,
-    implementation::*,
-};
-use AlfredGF_rs::implementation::AFShaderModule;
 use AlfredGF_rs::generic::AFShaderConfig;
+use AlfredGF_rs::implementation::AFShaderModule;
+use AlfredGF_rs::{constructors::*, enums::*, generic::*, implementation::*, util_structs::*};
 
-pub fn main(){
+pub fn main() {
     let size: AFSize2D = AFSize2D {
-        width: 1280, height: 720
+        width: 1280,
+        height: 720,
     };
-    let window_config: AFWindowConfig = AFWindowConfig{
+    let window_config: AFWindowConfig = AFWindowConfig {
         icon: None,
         start_size: size,
         min_size: size,
@@ -31,19 +26,24 @@ pub fn main(){
         vsync: true,
         anisotropic_filtering: false,
         backend_lib: {
-            #[cfg(target_os = "macos")]{
+            #[cfg(target_os = "macos")]
+            {
                 AFBackendLibrary::Metal
             }
-            #[cfg(target_os = "ios")]{
+            #[cfg(target_os = "ios")]
+            {
                 AFBackendLibrary::Metal
             }
-            #[cfg(target_os = "android")]{
+            #[cfg(target_os = "android")]
+            {
                 AFBackendLibrary::OpenGL
             }
-            #[cfg(target_os = "windows")]{
+            #[cfg(target_os = "windows")]
+            {
                 AFBackendLibrary::Vulkan
             }
-            #[cfg(target_os = "linux")]{
+            #[cfg(target_os = "linux")]
+            {
                 AFBackendLibrary::Vulkan
             }
         },
@@ -55,12 +55,12 @@ pub fn main(){
     let v_s_c: AFShaderConfig = AFShaderConfig {
         stage: AFShaderStage::Vertex,
         bytecode: include_bytes!("shader.vert.spv"),
-        entry_point: "main"
+        entry_point: "main",
     };
     let f_s_c: AFShaderConfig = AFShaderConfig {
         stage: AFShaderStage::Fragment,
         bytecode: include_bytes!("shader.frag.spv"),
-        entry_point: "main"
+        entry_point: "main",
     };
     let vertex_shader: AFShaderModule = AFShaderModule::new(&context, &v_s_c);
     let fragment_shader: AFShaderModule = AFShaderModule::new(&context, &f_s_c);
@@ -105,9 +105,13 @@ pub fn main(){
         index_format: AFIndexFormat::UnsignedInt16,
     };
 
-    AFContext::mainloop(context, move |state|{
-        //
-    }, move ||{
-        println!("finished");
-    });
+    AFContext::mainloop(
+        context,
+        move |state| {
+            //
+        },
+        move || {
+            println!("finished");
+        },
+    );
 }

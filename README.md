@@ -276,4 +276,4 @@ Specification:
     
     }
     
-    fn mainloop<F: 'static, T: 'static>() where F: Fn(AFMainloopState) -> (), T: Fn() -> ();
+    fn mainloop<F: 'static, T: 'static>(context, T, F) where F: Fn(AFMainloopState) -> (), T: Fn() -> ();

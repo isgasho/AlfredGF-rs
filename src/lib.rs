@@ -3,6 +3,6 @@
 
 pub mod util_structs;
 pub mod enums;
-pub mod config_structs;
+pub mod generic;
 pub mod constructors;
 pub mod implementation;

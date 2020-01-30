@@ -1,4 +1,4 @@
-use crate::config_structs::*;
+use crate::generic::*;
 use crate::enums::*;
 use crate::constructors::*;
 
@@ -54,6 +54,12 @@ pub struct AFShaderModule {
     module: ShaderModule,
     stage: ShaderStage,
     entry: String,
+
+}
+
+pub struct AFRenderPipeline {
+
+    //
 
 }
 
@@ -148,4 +154,19 @@ impl AFShaderConstructor<AFContext> for AFShaderModule {
             entry: config.entry_point.to_string(),
         };
     }
+}
+
+impl AFRenderPipelineConstructor<AFContext> for AFRenderPipeline {
+    fn new(context: &AFContext, config: &AFRenderPipelineConfig) -> Self {
+        unimplemented!()
+    }
+}
+
+impl AFMainloop for AFContext {
+
+    fn mainloop<F: 'static, T: 'static>(context: AFContext, on_loop: F, on_finish: T)
+        where F: Fn(AFMainloopState) -> (), T: Fn() -> () {
+        println!("hey");
+    }
+
 }

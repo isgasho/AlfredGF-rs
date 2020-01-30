@@ -108,3 +108,19 @@ pub struct AFRenderCommandConfig {
     command_type: AFRenderCommandType,
 
 }
+
+#[derive(Copy, Clone)]
+pub struct AFMainloopState {
+
+    //
+
+}
+
+pub trait AFMainloop {
+
+    fn mainloop<F: 'static, T: 'static>(context: Self,
+                                        on_loop: F,
+                                        on_finish: T)
+        where F: Fn(AFMainloopState) -> (), T: Fn() -> ();
+
+}

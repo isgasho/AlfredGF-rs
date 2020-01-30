@@ -2,13 +2,13 @@ extern crate AlfredGF_rs;
 
 use AlfredGF_rs::{
     util_structs::*,
-    config_structs::*,
+    generic::*,
     constructors::*,
     enums::*,
     implementation::*,
 };
 use AlfredGF_rs::implementation::AFShaderModule;
-use AlfredGF_rs::config_structs::AFShaderConfig;
+use AlfredGF_rs::generic::AFShaderConfig;
 
 pub fn main(){
     let size: AFSize2D = AFSize2D {
@@ -104,4 +104,10 @@ pub fn main(){
         cull_mode: None,
         index_format: AFIndexFormat::UnsignedInt16,
     };
+
+    AFContext::mainloop(context, move |state|{
+        //
+    }, move ||{
+        println!("finished");
+    });
 }

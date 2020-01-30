@@ -1,5 +1,4 @@
-use crate::config_structs::*;
-use crate::implementation::*;
+use crate::generic::*;
 use crate::enums::*;
 
 pub trait AFWindowConstructor {

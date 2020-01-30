@@ -10,6 +10,10 @@ use AlfredGF_rs::{
     },
     returned_structs::{
         AFWindow,
+        AFContext,
+
+        AFWindowConstructor,
+        AFContextConstructor,
     },
     enums::{
         //

@@ -39,17 +39,41 @@ pub struct AFWindow {
 
 }
 
-impl AFWindow {
+pub trait AFWindowConstructor {
 
-    pub fn new(config: &AFWindowConfig) -> Self {
+    fn new(config: &AFWindowConfig) -> Self;
+
+}
+
+pub struct AFContext {
+
+    window: Window,
+    present_mode: PresentMode,
+    device: Device,
+    queue: Queue,
+    adapter: Adapter,
+
+}
+
+pub trait AFContextConstructor {
+
+    fn new(window: AFWindow, config: &AFContextConfig) -> Self;
+
+}
+
+// implementation
+
+impl AFWindowConstructor for AFWindow {
+
+    fn new(config: &AFWindowConfig) -> Self {
         let builder: WindowBuilder = WindowBuilder::new()
             .with_inner_size(PhysicalSize::new(config.start_size.width, config.start_size.height))
             .with_max_inner_size(PhysicalSize::new(config.max_size.width, config.max_size.height))
             .with_min_inner_size(PhysicalSize::new(config.min_size.width, config.min_size.height))
             .with_window_icon(match config.icon {
                 Some(icon) => Icon::from_rgba(icon.data.to_vec(),
-                                         icon.size.width,
-                                         icon.size.height).ok(),
+                                              icon.size.width,
+                                              icon.size.height).ok(),
                 None => Icon::from_rgba(vec![], 0, 0).ok(),
             })
             .with_title(config.title)
@@ -68,20 +92,10 @@ impl AFWindow {
 
 }
 
-pub struct AFContext {
-
-    window: Window,
-    present_mode: PresentMode,
-    device: Device,
-    queue: Queue,
-    adapter: Adapter,
-
-}
-
-impl AFContext {
+impl AFContextConstructor for AFContext {
 
     // absorbs the window
-    pub fn new(window: AFWindow, config: &AFContextConfig) -> Self {
+    fn new(window: AFWindow, config: &AFContextConfig) -> Self {
         let adapter: Adapter = Adapter::request(&RequestAdapterOptions {
             power_preference: match config.power_preference {
                 AFPowerPreference::Default => {PowerPreference::Default}

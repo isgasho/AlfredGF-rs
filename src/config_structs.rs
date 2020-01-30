@@ -55,3 +55,31 @@ pub struct AFVertexBufferSlot<'a> {
     pub attribs: &'a [AFVertexFormat],
 
 }
+
+#[derive(Copy, Clone)]
+pub struct AFUniform {
+
+    pub location: u32,
+    pub stage: AFShaderStage,
+    pub dynamic: bool,
+    pub byte_size: u32,
+    pub uniform_type: AFUniformType,
+
+}
+
+#[derive(Copy, Clone)]
+pub struct AFUniformGroup<'a> {
+
+    pub set: u32,
+    pub uniforms: &'a [AFUniform],
+
+}
+
+#[derive(Copy, Clone)]
+pub struct AFBlendDescriptor {
+
+    pub src_factor: AFBlendFactor,
+    pub dst_factor: AFBlendFactor,
+    pub operation: AFBlendOperation,
+
+}

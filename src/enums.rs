@@ -53,3 +53,77 @@ pub enum AFVertexFormat {
     Int4,
 
 }
+
+#[derive(Copy, Clone)]
+pub enum AFUniformType {
+
+    Sampler,
+    Storage,
+    Buffer,
+
+}
+
+#[derive(Copy, Clone)]
+pub enum AFIndexFormat {
+
+    UnsignedInt16,
+    UnsignedInt32,
+
+}
+
+#[derive(Copy, Clone)]
+pub enum AFDrawablePrimitive {
+
+    Points,
+    Lines,
+    LineStrip,
+    Triangles,
+    TriangleStrip,
+
+}
+
+#[derive(Copy, Clone)]
+pub enum AFBlendOperation {
+
+    Add,
+    Subtract,
+    ReverseSubtract,
+    Min,
+    Max,
+
+}
+
+#[derive(Copy, Clone)]
+pub enum AFBlendFactor {
+
+    Zero,
+    One,
+    SrcColour,
+    OneMinusSrcColour,
+    SrcAlpha,
+    OneMinusSrcAlpha,
+    DstColour,
+    OneMinusDstColour,
+    DstAlpha,
+    OneMinusDstAlpha,
+    SrcAlphaSaturated,
+    BlendColour,
+    OneMinusBlendColour,
+
+}
+
+#[derive(Copy, Clone)]
+pub enum AFDirection {
+
+    Clockwise,
+    CounterClockwise
+
+}
+
+#[derive(Copy, Clone)]
+pub enum AFFace {
+
+    Front,
+    Back,
+
+}

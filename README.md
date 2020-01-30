@@ -133,6 +133,7 @@ Specification:
         stage: AFShaderStage
         dynamic: bool
         byte_size: u32
+        type: AFUniformType
     
     }
     
@@ -181,7 +182,7 @@ Specification:
     
     }
     
-    AFBlendOperation {
+    AFBlend {
     
         src_factor: AFBlendFactor
         dst_factor: AFBlendFactor
@@ -189,14 +190,14 @@ Specification:
     
     }
     
-    AFFace {
+    AFDirection {
     
         Clockwise
         CounterClockwise
     
     }
     
-    AFCullMode {
+    AFFace {
     
         None
         Front
@@ -204,11 +205,16 @@ Specification:
     
     }
     
-    AFUniformGroup
+    AFUniformGroup<'a> {
+    
+        set: u32,
+        uniforms: &'a [AFUniform]
+    
+    }
         
     AFRenderPipelineConfig<'a> {
     
-        uniforms: &'a [AFUniform]
+        uniforms: &'a [AFUniformGroup<'a>]
         vertex_buffer_slots: &'a [VertexBufferSlot]
         colour_blend: AFBlendOperation
         alpha_blend: AFBlendOperation

@@ -26,6 +26,9 @@ use wgpu::{
     Extensions,
     PowerPreference,
     BackendBit,
+    ShaderModule,
+    ShaderStage,
+    read_spirv,
 };
 
 pub struct AFWindow {
@@ -47,7 +50,9 @@ pub struct AFContext {
 
 pub struct AFShaderModule {
 
-    //
+    module: ShaderModule,
+    stage: ShaderStage,
+    entry: String,
 
 }
 
@@ -127,8 +132,19 @@ impl AFContextConstructor<AFWindow> for AFContext {
 
 impl AFShaderConstructor<AFContext> for AFShaderModule {
     fn new(context: &AFContext, config: &AFShaderConfig) -> Self {
+        let module: ShaderModule = context
+            .device
+            .create_shader_module(&read_spirv(std::io::Cursor::new(config.bytecode)).unwrap());
+
         return AFShaderModule {
-            //
+            module,
+            stage: match config.stage {
+                AFShaderStage::None => ShaderStage::NONE,
+                AFShaderStage::Vertex => ShaderStage::VERTEX,
+                AFShaderStage::Fragment => ShaderStage::FRAGMENT,
+                AFShaderStage::Compute => ShaderStage::COMPUTE,
+            },
+            entry: config.entry_point.to_string(),
         };
     }
 }

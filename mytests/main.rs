@@ -7,13 +7,15 @@ use AlfredGF_rs::{
     },
     config_structs::{
         AFWindowConfig,
+        AFContextConfig,
     },
     constructors::{
         AFWindowConstructor,
         AFContextConstructor,
     },
     enums::{
-        //
+        AFBackendLibrary,
+        AFPowerPreference,
     },
 
     implementation::{
@@ -26,7 +28,7 @@ pub fn main(){
     let size: AFSize2D = AFSize2D {
         width: 1280, height: 720
     };
-    let config: AFWindowConfig = AFWindowConfig{
+    let window_config: AFWindowConfig = AFWindowConfig{
         icon: None,
         start_size: size,
         min_size: size,
@@ -37,5 +39,12 @@ pub fn main(){
         maximized: false,
         title: "Test",
     };
-    let window: AFWindow = AFWindow::new(&config);
+    let window: AFWindow = AFWindow::new(&window_config);
+
+    let context_config: AFContextConfig = AFContextConfig {
+        vsync: true,
+        anisotropic_filtering: false,
+        backend_lib: AFBackendLibrary::Metal,
+        power_preference: AFPowerPreference::LowPower,
+    };
 }

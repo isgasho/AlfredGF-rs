@@ -82,16 +82,16 @@ impl AFContextConstructor<AFWindow> for AFContext {
     fn new(window: AFWindow, config: &AFContextConfig) -> Self {
         let adapter: Adapter = Adapter::request(&RequestAdapterOptions {
             power_preference: match config.power_preference {
-                AFPowerPreference::Default => {PowerPreference::Default}
-                AFPowerPreference::LowPower => {PowerPreference::LowPower}
-                AFPowerPreference::HighPerformance => {PowerPreference::HighPerformance}
+                AFPowerPreference::Default => PowerPreference::Default,
+                AFPowerPreference::LowPower => PowerPreference::LowPower,
+                AFPowerPreference::HighPerformance => PowerPreference::HighPerformance,
             },
             backends: match config.backend_lib {
-                AFBackendLibrary::Vulkan => {BackendBit::VULKAN}
-                AFBackendLibrary::Metal => {BackendBit::METAL}
-                AFBackendLibrary::OpenGL => {BackendBit::GL}
-                AFBackendLibrary::DX12 => {BackendBit::DX12}
-                AFBackendLibrary::DX11 => {BackendBit::DX11}
+                AFBackendLibrary::Vulkan => BackendBit::VULKAN,
+                AFBackendLibrary::Metal => BackendBit::METAL,
+                AFBackendLibrary::OpenGL => BackendBit::GL,
+                AFBackendLibrary::DX12 => BackendBit::DX12,
+                AFBackendLibrary::DX11 => BackendBit::DX11,
             }
         }).unwrap();
 

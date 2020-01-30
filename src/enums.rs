@@ -8,3 +8,12 @@ pub enum AFBackendLibrary {
     DX11,
 
 }
+
+#[derive(Copy, Clone)]
+pub enum AFPowerPreference {
+
+    LowPower,
+    Default,
+    HighPerformance,
+
+}

@@ -2,6 +2,10 @@ use crate::config_structs::{
     AFWindowConfig,
     AFContextConfig,
 };
+use crate::enums::{
+    AFBackendLibrary,
+    AFPowerPreference,
+};
 use winit::{
     window::{
         Window,
@@ -79,8 +83,18 @@ impl AFContext {
     // absorbs the window
     pub fn new(window: AFWindow, config: &AFContextConfig) -> Self {
         let adapter: Adapter = Adapter::request(&RequestAdapterOptions {
-            power_preference: PowerPreference::Default, // TODO make configurable
-            backends: BackendBit::PRIMARY, // TODO make configurable
+            power_preference: match config.power_preference {
+                AFPowerPreference::Default => {PowerPreference::Default}
+                AFPowerPreference::LowPower => {PowerPreference::LowPower}
+                AFPowerPreference::HighPerformance => {PowerPreference::HighPerformance}
+            },
+            backends: match config.backend_lib {
+                AFBackendLibrary::Vulkan => {BackendBit::VULKAN}
+                AFBackendLibrary::Metal => {BackendBit::METAL}
+                AFBackendLibrary::OpenGL => {BackendBit::GL}
+                AFBackendLibrary::DX12 => {BackendBit::DX12}
+                AFBackendLibrary::DX11 => {BackendBit::DX11}
+            }
         }).unwrap();
 
         let (device, queue): (Device, Queue) =

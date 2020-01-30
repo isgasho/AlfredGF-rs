@@ -4,6 +4,7 @@ use crate::util_structs::{
 };
 use crate::enums::{
     AFBackendLibrary,
+    AFPowerPreference
 };
 
 #[derive(Copy, Clone)]
@@ -27,5 +28,6 @@ pub struct AFContextConfig {
     pub vsync: bool,
     pub anisotropic_filtering: bool,
     pub backend_lib: AFBackendLibrary,
+    pub power_preference: AFPowerPreference,
 
 }

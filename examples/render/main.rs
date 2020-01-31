@@ -5,10 +5,10 @@ use AlfredGF_rs::implementation::AFShaderModule;
 use AlfredGF_rs::{constructors::*, enums::*, generic::*, implementation::*, util_structs::*};
 
 pub fn main() {
-    let size: AFSize2D<u32> = AFSize2D {
+    let size: AFWindowSize = AFWindowSize::Size(AFSize2D {
         width: 1280,
         height: 720,
-    };
+    });
     let window_config: AFWindowConfig = AFWindowConfig {
         icon: None,
         start_size: size,

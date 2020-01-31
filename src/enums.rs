@@ -122,3 +122,11 @@ pub enum AFWindowCommand {
     ResizeWindow(AFSize2D<u32>),
     DestroyWindow,
 }
+
+#[derive(Copy, Clone)]
+pub enum AFWindowSize {
+
+    MonitorSize,
+    Size(AFSize2D<u32>),
+
+}

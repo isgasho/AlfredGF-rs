@@ -4,9 +4,9 @@ use std::ops::Range;
 
 pub struct AFWindowConfig<'a> {
     pub icon: Option<&'a AFImage<'a>>,
-    pub start_size: AFSize2D<u32>,
-    pub min_size: AFSize2D<u32>,
-    pub max_size: AFSize2D<u32>,
+    pub start_size: AFWindowSize,
+    pub min_size: AFWindowSize,
+    pub max_size: AFWindowSize,
     pub decorated: bool,
     pub resizeable: bool,
     pub visible: bool,

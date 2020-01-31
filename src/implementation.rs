@@ -73,18 +73,39 @@ impl AFWindowConstructor for AFWindow {
         };
 
         let builder: WindowBuilder = WindowBuilder::new()
-            .with_inner_size(PhysicalSize::new(
-                config.start_size.width,
-                config.start_size.height,
-            ))
-            .with_max_inner_size(PhysicalSize::new(
-                config.max_size.width,
-                config.max_size.height,
-            ))
-            .with_min_inner_size(PhysicalSize::new(
-                config.min_size.width,
-                config.min_size.height,
-            ))
+            .with_inner_size(match config.start_size {
+                AFWindowSize::MonitorSize => {
+                    monitor.size()
+                },
+                AFWindowSize::Size(size) => {
+                    PhysicalSize::new(
+                        size.width,
+                        size.height,
+                    )
+                }
+            })
+            .with_max_inner_size(match config.max_size {
+                AFWindowSize::MonitorSize => {
+                    monitor.size()
+                },
+                AFWindowSize::Size(size) => {
+                    PhysicalSize::new(
+                        size.width,
+                        size.height,
+                    )
+                }
+            })
+            .with_min_inner_size(match config.min_size {
+                AFWindowSize::MonitorSize => {
+                    monitor.size()
+                },
+                AFWindowSize::Size(size) => {
+                    PhysicalSize::new(
+                        size.width,
+                        size.height,
+                    )
+                }
+            })
             .with_transparent(config.transparent)
             .with_decorations(config.decorated)
             .with_window_icon(match config.icon {
@@ -93,7 +114,10 @@ impl AFWindowConstructor for AFWindow {
                 }
                 None => Icon::from_rgba(vec![], 0, 0).ok(),
             })
-//            .with_fullscreen(Option::Some(Fullscreen::Borderless()))
+            .with_fullscreen(match config.fullscreen {
+                true => {Some(Fullscreen::Borderless(monitor))},
+                false => {None},
+            })
             .with_title(config.title)
             .with_resizable(config.resizeable)
             .with_always_on_top(config.always_on_top)
@@ -178,7 +202,7 @@ impl AFMainloop for AFContext {
         F: Fn(AFMainloopState) -> (),
         T: Fn() -> (),
     {
-        let AFContext{event_loop:event_loop, window:window, ..} = context;
+        let AFContext{event_loop, window, ..} = context;
 
         event_loop.run(move |event, _, control_flow|{
             *control_flow = ControlFlow::Poll;

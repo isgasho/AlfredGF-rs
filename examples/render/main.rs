@@ -46,7 +46,7 @@ pub fn main() {
             }
             #[cfg(target_os = "windows")]
             {
-                AFBackendLibrary::Vulkan
+                AFBackendLibrary::DX12
             }
             #[cfg(target_os = "linux")]
             {

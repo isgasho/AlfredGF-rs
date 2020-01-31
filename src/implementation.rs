@@ -115,7 +115,10 @@ impl AFWindowConstructor for AFWindow {
                 None => Icon::from_rgba(vec![], 0, 0).ok(),
             })
             .with_fullscreen(match config.fullscreen {
-                true => {Some(Fullscreen::Borderless(monitor))},
+                true => {
+                    //Some(Fullscreen::Exclusive()) // TODO implement exclusive fullscreen
+                    Some(Fullscreen::Borderless(monitor))
+                },
                 false => {None},
             })
             .with_title(config.title)
@@ -204,7 +207,7 @@ impl AFMainloop for AFContext {
     {
         let AFContext{event_loop, window, ..} = context;
 
-        event_loop.run(move |event, _, control_flow|{
+        event_loop.run(move |event, event_loop, control_flow|{
             *control_flow = ControlFlow::Poll;
 
             match event {

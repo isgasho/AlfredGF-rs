@@ -45,10 +45,10 @@ impl AFWindowConstructor for AFWindow {
     fn new(config: &AFWindowConfig) -> Self {
         let event_loop: EventLoop<()> = EventLoop::new();
         let monitor = match config.monitor_chooser {
-            Option::None => {
+            None => {
                 event_loop.primary_monitor()
             },
-            Option::Some(closure) => {
+            Some(closure) => {
                 let m_hs = event_loop.available_monitors().collect::<Vec<_>>();
                 let monitors = m_hs.iter().map(|monitor_handle|{
                     AFMonitor {

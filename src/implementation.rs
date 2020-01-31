@@ -1,6 +1,7 @@
 use crate::constructors::*;
 use crate::enums::*;
 use crate::generic::*;
+use crate::util_structs::*;
 
 use wgpu::{
     read_spirv, Adapter, BackendBit, BlendDescriptor, Device, DeviceDescriptor, Extensions, Limits,
@@ -10,7 +11,7 @@ use winit::{
     dpi::PhysicalSize,
     event_loop::{EventLoop, ControlFlow},
     event::{Event, WindowEvent},
-    window::{Icon, Window, WindowBuilder},
+    window::{Icon, Window, WindowBuilder, Fullscreen},
 };
 
 pub struct AFWindow {
@@ -41,6 +42,23 @@ pub struct AFRenderPipeline {
 
 impl AFWindowConstructor for AFWindow {
     fn new(config: &AFWindowConfig) -> Self {
+        let event_loop: EventLoop<()> = EventLoop::new();
+        let m_hs = event_loop.available_monitors().collect::<Vec<_>>();
+        let monitors = m_hs.iter().map(|monitor_handle|{
+            AFMonitor {
+                size: AFSize2D {
+                    width: monitor_handle.size().width,
+                    height: monitor_handle.size().height,
+                },
+                position: AFSize2D {
+                    width: monitor_handle.position().x,
+                    height: monitor_handle.position().y,
+                },
+                name: monitor_handle.name(),
+                scale_factor: monitor_handle.scale_factor(),
+            }
+        });
+
         let builder: WindowBuilder = WindowBuilder::new()
             .with_inner_size(PhysicalSize::new(
                 config.start_size.width,
@@ -54,18 +72,20 @@ impl AFWindowConstructor for AFWindow {
                 config.min_size.width,
                 config.min_size.height,
             ))
+            .with_transparent(config.transparent)
+            .with_decorations(config.decorated)
             .with_window_icon(match config.icon {
                 Some(icon) => {
                     Icon::from_rgba(icon.data.to_vec(), icon.size.width, icon.size.height).ok()
                 }
                 None => Icon::from_rgba(vec![], 0, 0).ok(),
             })
+            .with_fullscreen(Option::Some(Fullscreen::Borderless()))
             .with_title(config.title)
             .with_resizable(config.resizeable)
             .with_always_on_top(config.always_on_top)
             .with_maximized(config.maximized);
 
-        let event_loop: EventLoop<()> = EventLoop::new();
         let window = builder.build(&event_loop).unwrap();
 
         return AFWindow { window, event_loop };

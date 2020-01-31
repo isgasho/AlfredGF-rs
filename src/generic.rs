@@ -5,14 +5,18 @@ use std::ops::Range;
 #[derive(Copy, Clone)]
 pub struct AFWindowConfig<'a> {
     pub icon: Option<&'a AFImage<'a>>,
-    pub start_size: AFSize2D,
-    pub min_size: AFSize2D,
-    pub max_size: AFSize2D,
+    pub start_size: AFSize2D<u32>,
+    pub min_size: AFSize2D<u32>,
+    pub max_size: AFSize2D<u32>,
+    pub decorated: bool,
     pub resizeable: bool,
     pub visible: bool,
     pub always_on_top: bool,
+    pub transparent: bool,
     pub maximized: bool,
+    pub fullscreen: bool,
     pub title: &'a str,
+    pub monitor_chooser: Fn(Iterator) -> u32,
 }
 
 #[derive(Copy, Clone)]
@@ -84,6 +88,15 @@ pub struct AFRenderCommandConfig {
     enabled_uniform_groups: Range<u32>,
     calls: u32,
     command_type: AFRenderCommandType,
+}
+
+pub struct AFMonitor {
+
+    pub size: AFSize2D<u32>,
+    pub position: AFSize2D<i32>,
+    pub name: Option<String>,
+    pub scale_factor: f64,
+
 }
 
 #[derive(Copy, Clone)]

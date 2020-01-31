@@ -14,11 +14,13 @@ pub fn main() {
         start_size: size,
         min_size: size,
         max_size: size,
+        decorated: true,
         resizeable: false,
         visible: true,
         always_on_top: false,
+        transparent: false,
         maximized: false,
-        title: "Test",
+        title: "Test Window",
     };
     let window: AFWindow = AFWindow::new(&window_config);
 

@@ -28,6 +28,8 @@ Specification:
         visible: bool,
         always_on_top: bool,
         maximized: bool,
+        transparent: bool,
+        title: &'a str
     
     }
     

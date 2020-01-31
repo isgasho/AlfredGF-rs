@@ -2,7 +2,6 @@ use crate::enums::*;
 use crate::util_structs::{AFImage, AFSize2D};
 use std::ops::Range;
 
-#[derive(Copy, Clone)]
 pub struct AFWindowConfig<'a> {
     pub icon: Option<&'a AFImage<'a>>,
     pub start_size: AFSize2D<u32>,
@@ -16,7 +15,7 @@ pub struct AFWindowConfig<'a> {
     pub maximized: bool,
     pub fullscreen: bool,
     pub title: &'a str,
-    pub monitor_chooser: Fn(Iterator) -> u32,
+    pub monitor_chooser: Option<fn(Vec<AFMonitor>) -> usize>,
 }
 
 #[derive(Copy, Clone)]

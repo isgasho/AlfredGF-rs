@@ -119,6 +119,6 @@ pub enum AFRenderCommandType {
 
 pub enum AFWindowCommand {
     UpdateSurface,
-    ResizeWindow(AFSize2D),
+    ResizeWindow(AFSize2D<u32>),
     DestroyWindow,
 }

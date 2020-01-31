@@ -5,7 +5,7 @@ use AlfredGF_rs::implementation::AFShaderModule;
 use AlfredGF_rs::{constructors::*, enums::*, generic::*, implementation::*, util_structs::*};
 
 pub fn main() {
-    let size: AFSize2D = AFSize2D {
+    let size: AFSize2D<u32> = AFSize2D {
         width: 1280,
         height: 720,
     };
@@ -20,7 +20,11 @@ pub fn main() {
         always_on_top: false,
         transparent: false,
         maximized: false,
+        fullscreen: false,
         title: "Test Window",
+        monitor_chooser: Option::Some(|monitors: Vec<AFMonitor>| {
+            0
+        }),
     };
     let window: AFWindow = AFWindow::new(&window_config);
 

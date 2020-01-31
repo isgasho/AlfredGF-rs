@@ -12,6 +12,7 @@ use winit::{
     event_loop::{EventLoop, ControlFlow},
     event::{Event, WindowEvent},
     window::{Icon, Window, WindowBuilder, Fullscreen},
+    monitor::{MonitorHandle,},
 };
 
 pub struct AFWindow {
@@ -43,21 +44,33 @@ pub struct AFRenderPipeline {
 impl AFWindowConstructor for AFWindow {
     fn new(config: &AFWindowConfig) -> Self {
         let event_loop: EventLoop<()> = EventLoop::new();
-        let m_hs = event_loop.available_monitors().collect::<Vec<_>>();
-        let monitors = m_hs.iter().map(|monitor_handle|{
-            AFMonitor {
-                size: AFSize2D {
-                    width: monitor_handle.size().width,
-                    height: monitor_handle.size().height,
-                },
-                position: AFSize2D {
-                    width: monitor_handle.position().x,
-                    height: monitor_handle.position().y,
-                },
-                name: monitor_handle.name(),
-                scale_factor: monitor_handle.scale_factor(),
-            }
-        });
+        let monitor = match config.monitor_chooser {
+            Option::None => {
+                event_loop.primary_monitor()
+            },
+            Option::Some(closure) => {
+                let m_hs = event_loop.available_monitors().collect::<Vec<_>>();
+                let monitors = m_hs.iter().map(|monitor_handle|{
+                    AFMonitor {
+                        size: AFSize2D {
+                            width: monitor_handle.size().width,
+                            height: monitor_handle.size().height,
+                        },
+                        position: AFSize2D {
+                            width: monitor_handle.position().x,
+                            height: monitor_handle.position().y,
+                        },
+                        name: monitor_handle.name(),
+                        scale_factor: monitor_handle.scale_factor(),
+                    }
+                }).collect::<Vec<_>>();
+
+                let m_n = closure(monitors);
+                let m = event_loop.available_monitors().nth(m_n);
+
+                m.expect("Could not find a suitable monitor.")
+            },
+        };
 
         let builder: WindowBuilder = WindowBuilder::new()
             .with_inner_size(PhysicalSize::new(
@@ -80,7 +93,7 @@ impl AFWindowConstructor for AFWindow {
                 }
                 None => Icon::from_rgba(vec![], 0, 0).ok(),
             })
-            .with_fullscreen(Option::Some(Fullscreen::Borderless()))
+//            .with_fullscreen(Option::Some(Fullscreen::Borderless()))
             .with_title(config.title)
             .with_resizable(config.resizeable)
             .with_always_on_top(config.always_on_top)
